@@ -14,7 +14,7 @@ const AddAdmin = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:500/addadmin', { name, email, password, role });
+            const response = await axios.post('https://bytezle-server.vercel.app/addadmin', { name, email, password, role });
 
             // Optionally, reset the form or display a success message
         } catch (error) {

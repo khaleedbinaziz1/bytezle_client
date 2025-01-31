@@ -25,7 +25,7 @@ const Breakfast = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true); // Start loading
-        const response = await axios.get('http://localhost:500/products');
+        const response = await axios.get('https://bytezle-server.vercel.app/products');
         
         // Filter products to only include "Breakfast" category and "showProduct" = "On"
         const breakfastItems = response.data.filter(

@@ -19,7 +19,7 @@ const Categories = () => {
                 const token =
                     process.env.NEXT_PUBLIC_JWT_TOKEN ||
                     "a0aac42de4f5c299faec7fad1971c62730011fcbd449973eb250b4ae088a6684";
-                const response = await axios.get("http://localhost:500/categories", {
+                const response = await axios.get("https://bytezle-server.vercel.app/categories", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

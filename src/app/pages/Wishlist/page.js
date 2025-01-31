@@ -25,7 +25,7 @@ const Wishlist = () => {
           const wishlist = data.wishlist || [];
 
           const productPromises = wishlist.map(id =>
-            fetch(`http://localhost:500/products/${id}`).then(res => res.json())
+            fetch(`https://bytezle-server.vercel.app/products/${id}`).then(res => res.json())
           );
           const products = await Promise.all(productPromises);
 

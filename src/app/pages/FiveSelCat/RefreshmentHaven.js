@@ -25,7 +25,7 @@ const RefreshmentHaven = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true); // Start loading
-        const response = await axios.get('http://localhost:500/products');
+        const response = await axios.get('https://bytezle-server.vercel.app/products');
   
         // Filter products to only include "Refreshment Haven" subcategory and "showProduct" = "On"
         const refreshmentHavenProducts = response.data.filter(

@@ -13,7 +13,6 @@ const ProductDescription = ({ id }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [calculation, setCalculation] = useState(0);
   const [isMagnifierVisible, setIsMagnifierVisible] = useState(false);
-  const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const imageRef = useRef(null);
 
@@ -22,7 +21,7 @@ const ProductDescription = ({ id }) => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://localhost:500/products/${id}`);
+        const response = await axios.get(`https://bytezle-server.vercel.app/products/${id}`);
         setProduct(response.data);
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -79,7 +78,6 @@ const ProductDescription = ({ id }) => {
     const x = ((e.pageX - left) / width) * 100;
     const y = ((e.pageY - top) / height) * 100;
     setCursorPosition({ x, y });
-    setMagnifierPosition({ x: e.pageX - left, y: e.pageY - top });
   };
 
   if (!product) {
@@ -89,11 +87,34 @@ const ProductDescription = ({ id }) => {
   return (
     <div className="container mx-auto p-4 text-start">
       <div className="bg-white border border-gray-300 rounded-2xl shadow-inner p-8">
-        {/* Mobile View Layout */}
-        <div className="lg:hidden">
-          {/* Main Image */}
+        {/* Desktop View Layout */}
+        <div className="hidden lg:flex flex-row gap-8">
+          {/* Left: Thumbnails */}
+          <div className="w-1/5 flex flex-col space-y-4">
+            {product.images.map((image, index) => (
+              <div
+                key={index}
+                className="cursor-pointer rounded-lg overflow-hidden"
+                onClick={() => setSelectedImageIndex(index)}
+              >
+                <Image
+                  src={image}
+                  alt={`Thumbnail ${index + 1}`}
+                  width={80}
+                  height={80}
+                  className={`object-cover border-2 ${
+                    selectedImageIndex === index
+                      ? "border-primary"
+                      : "border-transparent"
+                  }`}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Middle: Main Image */}
           <div
-            className="w-full relative mb-4"
+            className="w-2/5 relative"
             onMouseEnter={() => setIsMagnifierVisible(true)}
             onMouseLeave={() => setIsMagnifierVisible(false)}
             onMouseMove={handleMouseMove}
@@ -108,19 +129,44 @@ const ProductDescription = ({ id }) => {
             />
             {isMagnifierVisible && (
               <div
-                className="absolute border-2 border-gray-300 bg-white"
+                className="absolute border-2 border-gray-400 bg-white bg-opacity-50 pointer-events-none"
                 style={{
-                  left: `${magnifierPosition.x - 50}px`,
-                  top: `${magnifierPosition.y - 50}px`,
-                  width: "100px",
-                  height: "100px",
-                  backgroundImage: `url(${product.images[selectedImageIndex]})`,
-                  backgroundPosition: `${cursorPosition.x}% ${cursorPosition.y}%`,
-                  backgroundSize: `${imageRef.current?.width * 2}px ${imageRef.current?.height * 2}px`,
-                  zIndex: 10,
+                  left: `${cursorPosition.x - 10}%`,
+                  top: `${cursorPosition.y - 10}%`,
+                  width: "20%",
+                  height: "20%",
+                  transform: "translate(-50%, -50%)",
                 }}
               />
             )}
+          </div>
+
+          {/* Right: Magnified Image Box */}
+          {isMagnifierVisible && (
+            <div className="w-2/5">
+              <div
+                className="w-full h-[400px] border-2 border-gray-300 overflow-hidden"
+                style={{
+                  backgroundImage: `url(${product.images[selectedImageIndex]})`,
+                  backgroundPosition: `${cursorPosition.x}% ${cursorPosition.y}%`,
+                  backgroundSize: `${imageRef.current?.width * 2}px ${imageRef.current?.height * 2}px`,
+                }}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Mobile View Layout */}
+        <div className="lg:hidden">
+          {/* Main Image */}
+          <div className="w-full relative mb-4">
+            <Image
+              src={product.images[selectedImageIndex]}
+              alt={product.name}
+              width={600}
+              height={400}
+              className="w-full h-auto"
+            />
           </div>
 
           {/* Thumbnails */}
@@ -184,78 +230,6 @@ const ProductDescription = ({ id }) => {
                 You save tk.{calculation.toFixed(0)} by buying wholesale!
               </p>
             )}
-          </div>
-        </div>
-
-        {/* Desktop View Layout */}
-        <div className="hidden lg:flex flex-row gap-8">
-          {/* Left: Thumbnails */}
-          <div className="w-1/5 flex flex-col space-y-4">
-            {product.images.map((image, index) => (
-              <div
-                key={index}
-                className="cursor-pointer rounded-lg overflow-hidden"
-                onClick={() => setSelectedImageIndex(index)}
-              >
-                <Image
-                  src={image}
-                  alt={`Thumbnail ${index + 1}`}
-                  width={80}
-                  height={80}
-                  className={`object-cover border-2 ${
-                    selectedImageIndex === index
-                      ? "border-primary"
-                      : "border-transparent"
-                  }`}
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Middle: Main Image */}
-          <div
-            className="w-2/5 relative"
-            onMouseEnter={() => setIsMagnifierVisible(true)}
-            onMouseLeave={() => setIsMagnifierVisible(false)}
-            onMouseMove={handleMouseMove}
-          >
-            <Image
-              ref={imageRef}
-              src={product.images[selectedImageIndex]}
-              alt={product.name}
-              width={600}
-              height={400}
-              className="w-full h-auto"
-            />
-            {isMagnifierVisible && (
-              <div
-                className="absolute border-2 border-gray-300 bg-white"
-                style={{
-                  left: `${magnifierPosition.x - 50}px`,
-                  top: `${magnifierPosition.y - 50}px`,
-                  width: "100px",
-                  height: "100px",
-                  backgroundImage: `url(${product.images[selectedImageIndex]})`,
-                  backgroundPosition: `${cursorPosition.x}% ${cursorPosition.y}%`,
-                  backgroundSize: `${imageRef.current?.width * 2}px ${imageRef.current?.height * 2}px`,
-                  zIndex: 10,
-                }}
-              />
-            )}
-          </div>
-
-          {/* Right: Name & Key Features Table */}
-          <div className="w-2/5">
-            <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
-            <table className="table-auto w-full border-collapse border border-gray-300">
-              <tbody>
-                {product.keyFeatures.split("\n").map((feature, index) => (
-                  <tr key={index} className="border border-gray-300">
-                    <td className="p-2">{feature}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         </div>
 

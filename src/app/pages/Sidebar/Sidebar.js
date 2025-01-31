@@ -14,11 +14,11 @@ const Sidebar = ({ toggleSidebar }) => {
   useEffect(() => {
     const fetchCategoriesAndSubcategories = async () => {
       try {
-        const categoriesResponse = await axios.get('http://localhost:500/categories');
+        const categoriesResponse = await axios.get('https://bytezle-server.vercel.app/categories');
         setCategories(categoriesResponse.data);
 
         const subcategoriesPromises = categoriesResponse.data.map(category =>
-          axios.get(`http://localhost:500/subcategories/category/${category._id}`)
+          axios.get(`https://bytezle-server.vercel.app/subcategories/category/${category._id}`)
         );
         const subcategoriesResponses = await Promise.all(subcategoriesPromises);
 
@@ -48,9 +48,9 @@ const Sidebar = ({ toggleSidebar }) => {
   return (
     <>
       <div className="fixed  inset-0  opacity-50 z-40" onClick={toggleSidebar}></div>
-      <div className="sidebar p-2 fixed h-full top-0 left-0 z-50 w-48 shadow-lg overflow-y-auto bg-white">
-        <h2 className="text-md font-semibold mb-4 mt-10 text-gray-800">Categories</h2>
-        {error && <div className="text-red-500">{error}</div>}
+      <div className="sidebar p-2 fixed h-full top-0 left-0 z-50 w-48 shadow-lg overflow-y-auto bg-white mt-20">
+
+
         <ul className="space-y-3">
           {categories.map((category) => (
             <li key={category._id} className="border-b border-gray-200 pb-1 relative">
@@ -84,8 +84,13 @@ const Sidebar = ({ toggleSidebar }) => {
                         className="flex items-center text-gray-600 hover:text-gray-800 cursor-pointer"
                         onClick={() => handleSubcategoryClick(subcategory.name)}
                       >
-                        <FaDotCircle className="text-gray-400 mr-2" />
-                        <span className="text-sm">{subcategory.name}</span>
+                    
+                    <span className="text-sm flex">
+                <Image className='rounded-lg' src={subcategory.img} width={30} height={30} alt={category.name}></Image>
+              
+               
+                </span>
+                        <span className="text-sm pl-2">{subcategory.name}</span>
                       </li>
                     ))}
                 </ul>

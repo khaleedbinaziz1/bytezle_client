@@ -17,7 +17,7 @@ const SubcategoriesContent = () => {
     const fetchSubcategories = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:500/subcategories/category/${encodeURIComponent(category)}`
+          `https://bytezle-server.vercel.app/subcategories/category/${encodeURIComponent(category)}`
         );
         setSubcategories(response.data);
       } catch (err) {

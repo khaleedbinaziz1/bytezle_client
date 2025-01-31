@@ -7,7 +7,7 @@ const InfoCards = () => {
     useEffect(() => {
         const fetchProductCount = async () => {
             try {
-                const response = await fetch('http://localhost:500/products');
+                const response = await fetch('https://bytezle-server.vercel.app/products');
                 const data = await response.json();
                 setProductCount(data.length); // Assuming the API returns an array of products
             } catch (error) {

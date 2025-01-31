@@ -27,7 +27,7 @@ const FetchSubcategories = () => {
 
         // Fetch the category ID using the subcategory name
         const subcategoryResponse = await axios.get(
-          `http://localhost:500/subcategoriesByName?name=${encodeURIComponent(subcategory)}`
+          `https://bytezle-server.vercel.app/subcategoriesByName?name=${encodeURIComponent(subcategory)}`
         );
         console.log("Subcategory response:", subcategoryResponse.data);
 
@@ -50,7 +50,7 @@ const FetchSubcategories = () => {
 
         // Fetch all subcategories under the same category
         const subcategoriesResponse = await axios.get(
-          `http://localhost:500/subcategories/category/${categoryId}`
+          `https://bytezle-server.vercel.app/subcategories/category/${categoryId}`
         );
         console.log("Subcategories response for the category:", subcategoriesResponse.data);
 

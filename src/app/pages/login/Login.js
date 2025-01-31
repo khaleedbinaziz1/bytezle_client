@@ -80,7 +80,7 @@ const Login = () => {
         });
   
         // Upload user data to MongoDB through your server
-        const response = await fetch('http://localhost:500/addusers', {
+        const response = await fetch('https://bytezle-server.vercel.app/addusers', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

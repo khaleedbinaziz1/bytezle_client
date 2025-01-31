@@ -30,7 +30,7 @@ const RelatedProducts = () => {
       try {
         // Fetch the current product details
         const productResponse = await axios.get(
-          `http://localhost:500/products/${currentProductId}`
+          `https://bytezle-server.vercel.app/products/${currentProductId}`
         );
         const product = productResponse.data;
         setCurrentProduct(product);
@@ -38,7 +38,7 @@ const RelatedProducts = () => {
         // Fetch related products using the subcategory
         if (product.subcategory) {
           const relatedResponse = await axios.get(
-            `http://localhost:500/products/subcategory/${encodeURIComponent(
+            `https://bytezle-server.vercel.app/products/subcategory/${encodeURIComponent(
               product.subcategory
             )}`
           );

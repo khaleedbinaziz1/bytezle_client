@@ -26,7 +26,7 @@ const Tracking = () => {
 
   const fetchUserDetailsByEmail = async (email) => {
     try {
-      const res = await fetch(`http://localhost:500/users/email/${email}`);
+      const res = await fetch(`https://bytezle-server.vercel.app/users/email/${email}`);
       if (res.ok) {
         const user = await res.json();
         const trackRecord = user.trackrecord || [];
@@ -43,7 +43,7 @@ const Tracking = () => {
   const fetchOrders = async (orderIds) => {
     try {
       const orders = await Promise.all(orderIds.map(async (orderId) => {
-        const res = await fetch(`http://localhost:500/orders/${orderId}`);
+        const res = await fetch(`https://bytezle-server.vercel.app/orders/${orderId}`);
         if (res.ok) {
           return await res.json();
         } else {

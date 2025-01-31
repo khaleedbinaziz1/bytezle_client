@@ -89,7 +89,7 @@ const Checkout = ({ user }) => {
 
   const fetchCoupons = async () => {
     try {
-      const res = await fetch('http://localhost:500/coupons');
+      const res = await fetch('https://bytezle-server.vercel.app/coupons');
       if (res.ok) {
         return await res.json();
       } else {
@@ -104,7 +104,7 @@ const Checkout = ({ user }) => {
 
   const checkIfCouponUsed = async (email) => {
     try {
-      const res = await fetch(`http://localhost:500/usedcoupons/${email}`);
+      const res = await fetch(`https://bytezle-server.vercel.app/usedcoupons/${email}`);
       if (res.ok) {
         const data = await res.json();
         return data.used;
@@ -120,7 +120,7 @@ const Checkout = ({ user }) => {
 
   const recordCouponUsage = async (email, couponCode) => {
     try {
-      const res = await fetch('http://localhost:500/usedcoupons', {
+      const res = await fetch('https://bytezle-server.vercel.app/usedcoupons', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, couponCode })
@@ -183,7 +183,7 @@ const Checkout = ({ user }) => {
 
 
     try {
-      const res = await fetch('http://localhost:500/addorders', {
+      const res = await fetch('https://bytezle-server.vercel.app/addorders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(order)
@@ -202,7 +202,7 @@ const Checkout = ({ user }) => {
 
   const fetchUserIdByEmail = async (email) => {
     try {
-      const res = await fetch(`http://localhost:500/users/email/${email}`);
+      const res = await fetch(`https://bytezle-server.vercel.app/users/email/${email}`);
       if (res.ok) {
         const user = await res.json();
         return user._id; // Adjust according to your actual user schema
@@ -226,7 +226,7 @@ const Checkout = ({ user }) => {
 
 
 
-      const res = await fetch(`http://localhost:500/users/${userId}`, {
+      const res = await fetch(`https://bytezle-server.vercel.app/users/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId }) // Fix the request body

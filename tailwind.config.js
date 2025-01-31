@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     extend: {
       backgroundImage: {
-        'custom-bg': "url('/better-client/src/images/bg.svg')",
+        'custom-bg': "url('/bytezle-client/src/images/bg.svg')",
       },
     },
 

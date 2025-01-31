@@ -14,11 +14,11 @@ const Topbar = () => {
   useEffect(() => {
     const fetchCategoriesAndSubcategories = async () => {
       try {
-        const categoriesResponse = await axios.get('http://localhost:500/categories');
+        const categoriesResponse = await axios.get('https://bytezle-server.vercel.app/categories');
         setCategories(categoriesResponse.data);
 
         const subcategoriesPromises = categoriesResponse.data.map((category) =>
-          axios.get(`http://localhost:500/subcategories/category/${category._id}`)
+          axios.get(`https://bytezle-server.vercel.app/subcategories/category/${category._id}`)
         );
         const subcategoriesResponses = await Promise.all(subcategoriesPromises);
 

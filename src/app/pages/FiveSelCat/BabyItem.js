@@ -26,7 +26,7 @@ const BabyiItem = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true); // Start loading
-        const response = await axios.get('http://localhost:500/products');
+        const response = await axios.get('https://bytezle-server.vercel.app/products');
         
         // Filter products to only include those in "Baby Care" category and with showProduct = "On"
         const categories = ['Baby Care'];

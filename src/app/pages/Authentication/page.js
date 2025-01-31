@@ -74,7 +74,7 @@ const Authentication = () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-      const response = await fetch('http://localhost:500/addusers', {
+      const response = await fetch('https://bytezle-server.vercel.app/addusers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

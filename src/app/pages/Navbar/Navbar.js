@@ -136,13 +136,26 @@ const Navbar = () => {
   return (
     <div>
       <Cart isOpen={isCartOpen} toggleCart={toggleCart} />
-      <div
-        ref={sidebarRef}
-        className={`fixed inset-0 bg-base-100 w-48 transition-transform transform z-[1000] duration-500 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
-      >
-        <Sidebar />
-      </div>
-      <div className={`navbar bg-base-100 flex flex-wrap md:flex-nowrap justify-between items-center shadow-md relative top-[-20px] ${isMobileView ? 'pt-0 pb-0 mt-0 mb-0 top-[-40px]' : 'pt-0 pb-0 mt-0 mb-0'}`}>
+      <>
+  {/* Overlay */}
+  {isSidebarOpen && (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 z-[999]"
+      onClick={toggleSidebar} // Close sidebar when overlay is clicked
+    ></div>
+  )}
+
+  {/* Sidebar */}
+  <div
+    ref={sidebarRef}
+    className={`fixed inset-0 bg-base-100 w-48 transition-transform transform z-[1000] duration-500 ease-in-out ${
+      isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+    }`}
+  >
+    <Sidebar />
+  </div>
+</>
+      <div className={`navbar bg-base-100 flex flex-wrap md:flex-nowrap justify-between items-center shadow-md relative top-[-20px] ${isMobileView ? 'pt-0 pb-0 mt-0 mb-0 top-[-20px]' : 'pt-0 pb-0 mt-0 mb-0'}`}>
         <div className="navbar-start flex items-center">
           {isMobileView && (
             <div className="cursor-pointer z-[1100] pt-2" onClick={toggleSidebar}>
