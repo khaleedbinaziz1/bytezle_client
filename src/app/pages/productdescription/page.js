@@ -1,26 +1,28 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { FaPlus, FaMinus, FaShoppingCart } from "react-icons/fa";
 import Image from "next/image";
 import { useCart } from "../Shared/Cart/CartProvider";
 import RelatedProducts from "./RelatedProducts";
-import ReactImageMagnify from "react-image-magnify";
 
 const ProductDescription = ({ id }) => {
   const [product, setProduct] = useState(null);
   const [wholesaleQuantity, setQuantity] = useState(1);
   const [isWholesale, setIsWholesale] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [calculation, setCalculation] = useState(0); // Savings calculation for wholesale
+  const [calculation, setCalculation] = useState(0);
+  const [isMagnifierVisible, setIsMagnifierVisible] = useState(false);
+  const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const imageRef = useRef(null);
+
   const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:500/products/${id}`
-        );
+        const response = await axios.get(`http://localhost:500/products/${id}`);
         setProduct(response.data);
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -72,6 +74,14 @@ const ProductDescription = ({ id }) => {
     }
   };
 
+  const handleMouseMove = (e) => {
+    const { left, top, width, height } = imageRef.current.getBoundingClientRect();
+    const x = ((e.pageX - left) / width) * 100;
+    const y = ((e.pageY - top) / height) * 100;
+    setCursorPosition({ x, y });
+    setMagnifierPosition({ x: e.pageX - left, y: e.pageY - top });
+  };
+
   if (!product) {
     return <div className="container mx-auto p-4">Loading...</div>;
   }
@@ -82,30 +92,35 @@ const ProductDescription = ({ id }) => {
         {/* Mobile View Layout */}
         <div className="lg:hidden">
           {/* Main Image */}
-          <div className="w-full relative mb-4">
-            <ReactImageMagnify
-              {...{
-                smallImage: {
-                  alt: product.name,
-                  isFluidWidth: true,
-                  src: product.images[selectedImageIndex],
-                },
-                largeImage: {
-                  src: product.images[selectedImageIndex],
-                  width: 1200,
-                  height: 900,
-                },
-                enlargedImageContainerStyle: {
-                  zIndex: 10,
-                  right: "-300px",
-                },
-                enlargedImageContainerDimensions: {
-                  width: "150%",
-                  height: "100%",
-                },
-                enlargedImagePosition: "beside",
-              }}
+          <div
+            className="w-full relative mb-4"
+            onMouseEnter={() => setIsMagnifierVisible(true)}
+            onMouseLeave={() => setIsMagnifierVisible(false)}
+            onMouseMove={handleMouseMove}
+          >
+            <Image
+              ref={imageRef}
+              src={product.images[selectedImageIndex]}
+              alt={product.name}
+              width={600}
+              height={400}
+              className="w-full h-auto"
             />
+            {isMagnifierVisible && (
+              <div
+                className="absolute border-2 border-gray-300 bg-white"
+                style={{
+                  left: `${magnifierPosition.x - 50}px`,
+                  top: `${magnifierPosition.y - 50}px`,
+                  width: "100px",
+                  height: "100px",
+                  backgroundImage: `url(${product.images[selectedImageIndex]})`,
+                  backgroundPosition: `${cursorPosition.x}% ${cursorPosition.y}%`,
+                  backgroundSize: `${imageRef.current?.width * 2}px ${imageRef.current?.height * 2}px`,
+                  zIndex: 10,
+                }}
+              />
+            )}
           </div>
 
           {/* Thumbnails */}
@@ -121,10 +136,11 @@ const ProductDescription = ({ id }) => {
                   alt={`Thumbnail ${index + 1}`}
                   width={80}
                   height={80}
-                  className={`object-cover border-2 ${selectedImageIndex === index
-                    ? "border-primary"
-                    : "border-transparent"
-                    }`}
+                  className={`object-cover border-2 ${
+                    selectedImageIndex === index
+                      ? "border-primary"
+                      : "border-transparent"
+                  }`}
                 />
               </div>
             ))}
@@ -160,7 +176,7 @@ const ProductDescription = ({ id }) => {
                   checked={isWholesale}
                   onChange={() => setIsWholesale(!isWholesale)}
                 />
-                <h1 className="text-2xl text-green-600 font-bold">Buy in Wholesale Quantity</h1> {/* Adjusted size here */}
+                <h1 className="text-2xl text-green-600 font-bold">Buy in Wholesale Quantity</h1>
               </label>
             </div>
             {isWholesale && (
@@ -186,40 +202,46 @@ const ProductDescription = ({ id }) => {
                   alt={`Thumbnail ${index + 1}`}
                   width={80}
                   height={80}
-                  className={`object-cover border-2 ${selectedImageIndex === index
-                    ? "border-primary"
-                    : "border-transparent"
-                    }`}
+                  className={`object-cover border-2 ${
+                    selectedImageIndex === index
+                      ? "border-primary"
+                      : "border-transparent"
+                  }`}
                 />
               </div>
             ))}
           </div>
 
           {/* Middle: Main Image */}
-          <div className="w-2/5 relative">
-            <ReactImageMagnify
-              {...{
-                smallImage: {
-                  alt: product.name,
-                  isFluidWidth: true,
-                  src: product.images[selectedImageIndex],
-                },
-                largeImage: {
-                  src: product.images[selectedImageIndex],
-                  width: 1200,
-                  height: 900,
-                },
-                enlargedImageContainerStyle: {
-                  zIndex: 10,
-                  right: "-300px",
-                },
-                enlargedImageContainerDimensions: {
-                  width: "150%",
-                  height: "100%",
-                },
-                enlargedImagePosition: "beside",
-              }}
+          <div
+            className="w-2/5 relative"
+            onMouseEnter={() => setIsMagnifierVisible(true)}
+            onMouseLeave={() => setIsMagnifierVisible(false)}
+            onMouseMove={handleMouseMove}
+          >
+            <Image
+              ref={imageRef}
+              src={product.images[selectedImageIndex]}
+              alt={product.name}
+              width={600}
+              height={400}
+              className="w-full h-auto"
             />
+            {isMagnifierVisible && (
+              <div
+                className="absolute border-2 border-gray-300 bg-white"
+                style={{
+                  left: `${magnifierPosition.x - 50}px`,
+                  top: `${magnifierPosition.y - 50}px`,
+                  width: "100px",
+                  height: "100px",
+                  backgroundImage: `url(${product.images[selectedImageIndex]})`,
+                  backgroundPosition: `${cursorPosition.x}% ${cursorPosition.y}%`,
+                  backgroundSize: `${imageRef.current?.width * 2}px ${imageRef.current?.height * 2}px`,
+                  zIndex: 10,
+                }}
+              />
+            )}
           </div>
 
           {/* Right: Name & Key Features Table */}
@@ -267,7 +289,7 @@ const ProductDescription = ({ id }) => {
                 checked={isWholesale}
                 onChange={() => setIsWholesale(!isWholesale)}
               />
-              <h1 className="text-2xl text-green-600 font-bold">Buy in Wholesale Quantity</h1> {/* Adjusted size here */}
+              <h1 className="text-2xl text-green-600 font-bold">Buy in Wholesale Quantity</h1>
             </label>
           </div>
           {isWholesale && (
