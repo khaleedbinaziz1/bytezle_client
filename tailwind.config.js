@@ -1,0 +1,67 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      backgroundImage: {
+        'custom-bg': "url('/better-client/src/images/bg.svg')",
+      },
+    },
+
+    keyframes: {
+      pop: {
+        '0%, 100%': { transform: 'scale(1)' },
+        '50%': { transform: 'scale(1.2)' },
+      },
+    },
+    animation: {
+      pop: 'pop 1.8s ease-in-out',
+    },
+
+  },
+  daisyui: {
+    themes: [
+      {
+        mytheme: {
+          "primary": "#F9D029",  // Bright Yellow as Primary
+          "secondary": "#000000",  // Black
+          "accent": "#FFD200",  // Gold Yellow (accent remains similar)
+          "neutral": "#F5F5F5",  // Light Grey for Neutral Backgrounds
+          "base-100": "#FFFFFF",  // Pure White
+          "info": "#4D4D4D",  // Dark Grey (Less aggressive than full black)
+          "success": "#00A96E",  // #FFD601 remains as success
+          "warning": "#F57223",  // Warning remains for contrast
+          "error": "#FF534D",  // Red for errors (original but balanced)
+        },
+        
+
+      },
+    ],
+    screens: {
+      'sm': '640px',
+      // => @media (min-width: 640px) { ... }
+
+      'md': '768px',
+      // => @media (min-width: 768px) { ... }
+
+      'lg': '1024px',
+      // => @media (min-width: 1024px) { ... }
+
+      'xl': '1280px',
+      // => @media (min-width: 1280px) { ... }
+
+      '2xl': '1536px',
+      // => @media (min-width: 1536px) { ... }
+    }
+  },
+  plugins: [
+    require("daisyui"),
+    require("tailwind-scrollbar-hide"),
+    require('@tailwindcss/typography'),
+
+  ],
+}

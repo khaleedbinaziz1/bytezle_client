@@ -1,0 +1,52 @@
+{
+  "name": "better-client",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@emailjs/browser": "^4.4.1",
+    "@react-pdf/renderer": "^3.4.4",
+    "@tailwindcss/typography": "^0.5.16",
+    "@tanstack/react-query": "^5.45.0",
+    "axios": "^1.7.2",
+    "bcrypt": "^5.1.1",
+    "chart.js": "^4.4.3",
+    "dotenv": "^16.4.5",
+    "emailjs-com": "^3.2.0",
+    "firebase": "^10.12.2",
+    "fuse.js": "^7.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "next": "14.2.3",
+    "next-auth": "^4.24.7",
+    "react": "^18",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18",
+    "react-firebase-hooks": "^5.1.1",
+    "react-icons": "^5.2.1",
+    "react-image-magnify": "^2.7.4",
+    "react-markdown": "^9.0.3",
+    "react-multi-carousel": "^2.8.5",
+    "react-phone-input-2": "^2.15.1",
+    "react-query": "^3.39.3",
+    "react-responsive-carousel": "^3.2.23",
+    "react-to-print": "^2.15.1",
+    "react-toastify": "^10.0.5",
+    "react-use": "^17.5.0",
+    "sharp": "^0.33.4",
+    "sslcommerz-lts": "^1.1.0",
+    "tailwind-scrollbar-hide": "^2.0.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "daisyui": "^4.12.2",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.3",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1"
+  }
+}
