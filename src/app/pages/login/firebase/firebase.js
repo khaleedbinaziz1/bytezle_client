@@ -3,13 +3,13 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, si
 import { getFirestore, onSnapshot } from 'firebase/firestore'; // Import onSnapshot
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD5ACh9BgXc_E6upc4_3Z8Qa9VKkkRBII0",
-  authDomain: "better-ecom.firebaseapp.com",
-  projectId: "better-ecom",
-  storageBucket: "better-ecom",
-  messagingSenderId: "1217353368",
-  appId: "1:1217353368:web:fd3760e646899ee35ea2ed",
-  measurementId: "G-NXP5W1X8HS"
+  apiKey: "AIzaSyA-pEY384lM5P4Q5_wVoEwGxaQwIQLRWC0",
+  authDomain: "bytezle-4f2b0.firebaseapp.com",
+  projectId: "bytezle-4f2b0",
+  storageBucket: "bytezle-4f2b0.firebasestorage.app",
+  messagingSenderId: "627420341833",
+  appId: "1:627420341833:web:358a649802273ac7d88198",
+  measurementId: "G-4PSTESRPM3"
 };
 
 const app = initializeApp(firebaseConfig);

@@ -14,6 +14,7 @@ const Checkout = ({ user }) => {
     name: '',
     location: '',
     phoneNumber: '',
+    email:'',
     zone: '',
   });
   const [name, setName] = useState('');
@@ -28,8 +29,8 @@ const Checkout = ({ user }) => {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
 
   const router = useRouter();
-  const vatRate = 0.05; // 2% vat
-  const platformFee = 10; // 1% platform fee
+
+
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
@@ -43,6 +44,7 @@ const Checkout = ({ user }) => {
           name: '',
           location: '',
           phoneNumber: '',
+          email:'',
           zone: '',
         });
       }
@@ -144,6 +146,7 @@ const Checkout = ({ user }) => {
             name: userData.name || '',
             location: userData.address || '',
             phoneNumber: userData.phone || '',
+            email: userData.email || '',
             zone: userData.zone || '',
           });
         } else {
@@ -229,10 +232,9 @@ const Checkout = ({ user }) => {
 
   const createOrder = async () => {
     const selectedZone = zones.find(zone => zone.name === shippingInfo.zone);
-    const deliveryCharge = cartDetails.total > 2000 ? 0 : (selectedZone ? selectedZone.delivery_charge : 0);
+    // const deliveryCharge = cartDetails.total > 2000 ? 0 : (selectedZone ? selectedZone.delivery_charge : 0);
+    const deliveryCharge = selectedZone.delivery_charge;
 
-    const vat = cartDetails.total * vatRate;
-    const platformFee = 10;
 
     const order = {
       order_id: orderId,
@@ -241,6 +243,7 @@ const Checkout = ({ user }) => {
       address: shippingInfo.location,
       zone: shippingInfo.zone,
       phone_no: shippingInfo.phoneNumber,
+      email:shippingInfo.email,
       products: cartDetails.items.map(item => ({
         product_id: item._id,
         product_name: item.name,
@@ -248,12 +251,12 @@ const Checkout = ({ user }) => {
         quantity: item.quantity
       })),
       product_total: Math.round(cartDetails.total),
-      total_price: Math.round(parseInt(cartDetails.total) + (isCouponValid ? 0 : deliveryCharge) + vat + platformFee),
+      total_price: Math.round(parseInt(cartDetails.total) + (isCouponValid ? 0 : deliveryCharge) ),
       status: "Pending",
       timestamp: new Date().toISOString(),
-      timeSlot: selectedTimeSlot,
-      vat:Math.round(vat ),
-      platformFee 
+
+
+
     };
 
     try {
@@ -327,7 +330,8 @@ const Checkout = ({ user }) => {
         shippingInfo.location &&
         shippingInfo.zone &&
         shippingInfo.phoneNumber &&
-        selectedTimeSlot
+        shippingInfo.email
+
       );
     };
 
@@ -387,6 +391,30 @@ const Checkout = ({ user }) => {
                 />
               </div>
               <div>
+                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">Phone Number:</label>
+                <input
+                  type="tel"
+                  id="phoneNumber"
+                  className="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
+                  placeholder={'Enter your phone number'}
+                  value={shippingInfo.phoneNumber}
+                  onChange={(e) => setShippingInfo({ ...shippingInfo, phoneNumber: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Phone Number:</label>
+                <input
+                  type="email"
+                  id="email"
+                  className="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
+                  placeholder={'Enter your email'}
+                  value={shippingInfo.email}
+                  onChange={(e) => setShippingInfo({ ...shippingInfo, email: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
                 <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location:</label>
                 <textarea
                   id="location"
@@ -412,33 +440,8 @@ const Checkout = ({ user }) => {
                   ))}
                 </select>
               </div>
-              <div>
-                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">Phone Number:</label>
-                <input
-                  type="tel"
-                  id="phoneNumber"
-                  className="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-                  placeholder={'Enter your phone number'}
-                  value={shippingInfo.phoneNumber}
-                  onChange={(e) => setShippingInfo({ ...shippingInfo, phoneNumber: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="timeSlot" className="block text-sm font-medium text-gray-700">Select Delivery Time Slot:</label>
-                <select
-                  id="timeSlot"
-                  className="form-select mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-                  value={selectedTimeSlot}
-                  onChange={(e) => setSelectedTimeSlot(e.target.value)}
-                  required
-                >
-                  <option value="">Select a time slot</option>
-                  {timeSlots.map((slot, index) => (
-                    <option key={index} value={slot}>{slot}</option>
-                  ))}
-                </select>
-              </div>
+           
+          
             </form>
           </div>
 
@@ -490,37 +493,24 @@ const Checkout = ({ user }) => {
               <span className="text-lg font-semibold">৳{parseInt(cartDetails.total)}</span>
             </div>
 
-            <div className="flex justify-between mb-4">
-              <span className="text-lg font-semibold">VAT:</span>
-              <span className="text-lg font-semibold">
-                ৳{Math.round(cartDetails.total * vatRate)}
-              </span>
-            </div>
 
-            <div className="flex justify-between mb-4">
-              <span className="text-lg font-semibold">Platform Fee:</span>
-              <span className="text-lg font-semibold">৳{platformFee}</span>
-            </div>
 
             <div className="flex justify-between mb-4">
               <span className="text-lg font-semibold">Delivery Charge:</span>
               <span className="text-lg font-semibold">
-                ৳{cartDetails.total > 2000 ? '0' : (zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge || 0)}
+                ৳{zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge}
               </span>
             </div>
 
             <div className="flex justify-between mb-4">
-              <span className="text-lg font-semibold">Total:</span>
-              <span className="text-lg font-semibold">
-                ৳{Math.round(
-                  parseInt(cartDetails.total) +
-                  (cartDetails.total > 2000 ? 0 : (isCouponValid ? 0 : (zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge || 0))) +
-                  (cartDetails.total * vatRate) +
-                  platformFee
-                )}
-              </span>
-
-            </div>
+  <span className="text-lg font-semibold">Total:</span>
+  <span className="text-lg font-semibold">
+    ৳{Math.round(
+      parseInt(cartDetails.total) +
+      (isCouponValid ? 0 : (zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge || 0))
+    )}
+  </span>
+</div>
 
             <button
               onClick={placeOrder}

@@ -23,14 +23,15 @@ export default function Home() {
 
 
 
-  
+
 
   return (
     <div>
-      
+
       <div className="main-content overflow-y-auto app">
 
         <Suspense fallback={<div><span className="loading loading-infinity loading-lg"></span></div>}>
+        
           <Hero />
           <Messenger />
           <InfoCards />
@@ -38,11 +39,11 @@ export default function Home() {
 
 
           <FeaturedProducts />
-<AllProducts />
-     
+          <AllProducts />
+
         </Suspense>
       </div>
-      <GoUpButton /> 
+      <GoUpButton />
     </div>
   );
 }
