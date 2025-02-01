@@ -18,6 +18,8 @@ import GoUpButton from './GoUpButton'; // Import the GoUpButton component
 import { useRouter } from 'next/navigation';
 import Messenger from '@/components/messenger';
 import AllProducts from './pages/AllProducts/AllProducts';
+import WhatsAppButton from '../components/whatapp/whatsapp';
+import MessengerButton from '../components/whatapp/messenger';
 
 export default function Home() {
 
@@ -31,8 +33,10 @@ export default function Home() {
       <div className="main-content overflow-y-auto app">
 
         <Suspense fallback={<div><span className="loading loading-infinity loading-lg"></span></div>}>
-        
+        <WhatsAppButton />
+        <MessengerButton />
           <Hero />
+          <WhatsAppButton />
           <Messenger />
           <InfoCards />
           <Categories />
@@ -43,7 +47,7 @@ export default function Home() {
 
         </Suspense>
       </div>
-      <GoUpButton />
+      {/* <GoUpButton /> */}
     </div>
   );
 }

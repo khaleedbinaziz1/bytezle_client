@@ -1,19 +1,18 @@
-import { FaWhatsapp } from 'react-icons/fa';
+import { FaFacebookMessenger } from 'react-icons/fa';
 
-export default function WhatsAppButton() {
-  const phoneNumber = '8801756922708'; // Replace with your phone number (International format)
-  const message = 'Hello, I have a question about your services.'; // Replace with your message
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+export default function MessengerButton() {
+  const pageId = '140669242459651'; // Your Facebook Page ID
+  const messengerUrl = `https://m.me/${pageId}`; // Messenger URL for your Facebook page
 
   const handleClick = () => {
-    window.location.href = whatsappUrl; // Redirect to WhatsApp URL directly
+    window.location.href = messengerUrl; // Redirect to Messenger
   };
 
   return (
     <div style={{
       position: 'fixed',
-      bottom: '3px',
-      left: '20px',
+      bottom: '0px',
+      left: '78px', // Adjust positioning if needed to avoid overlap with WhatsApp button
       zIndex: 1000,
       display: 'flex',
       alignItems: 'center',
@@ -22,11 +21,11 @@ export default function WhatsAppButton() {
       <button
         onClick={handleClick}
         style={{
-          backgroundColor: '#25D366',
+          backgroundColor: '#0084ff', // Facebook Messenger blue color
           color: 'white',
           padding: '5px',
           borderRadius: '50%',
-          fontSize: '10px',
+          fontSize: '20px',
           textDecoration: 'none',
           display: 'flex',
           alignItems: 'center',
@@ -36,13 +35,13 @@ export default function WhatsAppButton() {
           border: 'none',
           cursor: 'pointer',
           fontFamily: 'Arial, sans-serif',
-          width: '50px',
-          height: '50px',
+          width: '55px',
+          height: '55px',
         }}
         onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
         onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
       >
-        <FaWhatsapp size={30} />
+        <FaFacebookMessenger size={30} />
       </button>
     </div>
   );
