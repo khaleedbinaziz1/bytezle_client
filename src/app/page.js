@@ -20,6 +20,7 @@ import Messenger from '@/components/messenger';
 import AllProducts from './pages/AllProducts/AllProducts';
 import WhatsAppButton from '../components/whatapp/whatsapp';
 import MessengerButton from '../components/whatapp/messenger';
+import ChatBubble from '../components/chatBubble/chatBubble';
 
 export default function Home() {
 
@@ -33,11 +34,12 @@ export default function Home() {
       <div className="main-content overflow-y-auto app">
 
         <Suspense fallback={<div><span className="loading loading-infinity loading-lg"></span></div>}>
-        <WhatsAppButton />
-        <MessengerButton />
+
+<ChatBubble />
           <Hero />
-          <WhatsAppButton />
+
           <Messenger />
+          <ChatBubble />
           <InfoCards />
           <Categories />
 

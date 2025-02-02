@@ -372,162 +372,142 @@ const Checkout = ({ user }) => {
   };
 
   return (
-    <div className="checkout-container max-w-4xl mx-auto p-6 border border-gray-200 shadow-lg" style={{ marginTop: '150px' }}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div className="checkout-container max-w-6xl mx-auto p-8 mt-16">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+    {/* Shipping Information Section */}
+    <div className="bg-white p-8 rounded-lg shadow-md border border-gray-200 space-y-8">
+      <h3 className="text-2xl font-semibold text-gray-800 mb-6">Shipping Information</h3>
+      
+      <form className="space-y-6">
         <div>
-          <div className="bg-gray-50 p-2 rounded-lg">
-            <h3 className="text-xl font-semibold mb-4">Shipping Information</h3>
-            <form className="space-y-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name:</label>
-                <input
-                  type="text"
-                  id="name"
-                  className="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-                  placeholder={'Enter your name'}
-                  value={shippingInfo.name}
-                  onChange={(e) => setShippingInfo({ ...shippingInfo, name: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">Phone Number:</label>
-                <input
-                  type="tel"
-                  id="phoneNumber"
-                  className="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-                  placeholder={'Enter your phone number'}
-                  value={shippingInfo.phoneNumber}
-                  onChange={(e) => setShippingInfo({ ...shippingInfo, phoneNumber: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Phone Number:</label>
-                <input
-                  type="email"
-                  id="email"
-                  className="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-                  placeholder={'Enter your email'}
-                  value={shippingInfo.email}
-                  onChange={(e) => setShippingInfo({ ...shippingInfo, email: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location:</label>
-                <textarea
-                  id="location"
-                  className="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-                  placeholder="Enter your location"
-                  value={shippingInfo.location}
-                  onChange={(e) => setShippingInfo({ ...shippingInfo, location: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="zone" className="block text-sm font-medium text-gray-700">Area:</label>
-                <select
-                  id="zone"
-                  className="form-select mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-                  value={shippingInfo.zone}
-                  onChange={(e) => setShippingInfo({ ...shippingInfo, zone: e.target.value })}
-                  required
-                >
-                  <option value="">Select Area</option>
-                  {zones.map((zone, index) => (
-                    <option key={index} value={zone.name}>{zone.name}</option>
-                  ))}
-                </select>
-              </div>
-           
-          
-            </form>
-          </div>
-
-          <div className="bg-gray-50 p-4 rounded-lg mt-6">
-            <h3 className="text-xl font-semibold mb-4">Coupon Code</h3>
-            <div className="flex">
-              <input
-                type="text"
-                className="form-input flex-grow mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-                placeholder="Enter coupon code"
-                value={couponCode}
-                onChange={handleCouponChange}
-              />
-              <button
-                onClick={validateCoupon}
-                className="ml-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-              >
-                Apply
-              </button>
-            </div>
-            {isCouponChecked && (
-              isCouponValid ? (
-                <p className="text-#FFD601-500 mt-2">Coupon applied successfully!</p>
-              ) : (
-                <p className="text-red-500 mt-2">Invalid coupon code</p>
-              )
-            )}
-          </div>
+          <label htmlFor="name" className="text-sm font-medium text-gray-700">Full Name:</label>
+          <input
+            type="text"
+            id="name"
+            className="form-input mt-1 block w-full p-4 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800"
+            placeholder="Enter your full name"
+            value={shippingInfo.name}
+            onChange={(e) => setShippingInfo({ ...shippingInfo, name: e.target.value })}
+            required
+          />
         </div>
-
         <div>
-          <h3 className="text-xl font-semibold mb-4 p-2">Order Summary</h3>
-          {cartDetails.items.map((item, index) => (
-            <div key={index} className="flex items-center mb-4">
-              <div className="w-16 h-16 relative">
+          <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number:</label>
+          <input
+            type="tel"
+            id="phoneNumber"
+            className="form-input mt-1 block w-full p-4 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800"
+            placeholder="Enter your phone number"
+            value={shippingInfo.phoneNumber}
+            onChange={(e) => setShippingInfo({ ...shippingInfo, phoneNumber: e.target.value })}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="email" className="text-sm font-medium text-gray-700">Email Address:</label>
+          <input
+            type="email"
+            id="email"
+            className="form-input mt-1 block w-full p-4 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800"
+            placeholder="Enter your email"
+            value={shippingInfo.email}
+            onChange={(e) => setShippingInfo({ ...shippingInfo, email: e.target.value })}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="location" className="text-sm font-medium text-gray-700">Shipping Address:</label>
+          <textarea
+            id="location"
+            className="form-input mt-1 block w-full p-4 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800"
+            placeholder="Enter your full address"
+            value={shippingInfo.location}
+            onChange={(e) => setShippingInfo({ ...shippingInfo, location: e.target.value })}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="zone" className="text-sm font-medium text-gray-700">Area/Zone:</label>
+          <select
+            id="zone"
+            className="form-select mt-1 block w-full p-4 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800"
+            value={shippingInfo.zone}
+            onChange={(e) => setShippingInfo({ ...shippingInfo, zone: e.target.value })}
+            required
+          >
+            <option value="">Select Area</option>
+            {zones.map((zone, index) => (
+              <option key={index} value={zone.name}>{zone.name}</option>
+            ))}
+          </select>
+        </div>
+      </form>
+    </div>
+
+    {/* Order Summary Section */}
+    <div className="bg-white p-8 rounded-lg shadow-md border border-gray-200 space-y-8">
+      <h3 className="text-2xl font-semibold text-gray-800 mb-6">Order Summary</h3>
+      
+      <div className="space-y-6">
+        {cartDetails.items.map((item, index) => (
+          <div key={index} className="flex items-center justify-between p-4 border-b border-gray-200">
+            <div className="flex items-center space-x-4">
+              <div className="w-20 h-20 relative rounded-lg overflow-hidden">
                 <Image src={item.images[0]} alt={item.name} layout="fill" objectFit="cover" />
               </div>
-              <div className="ml-4">
-                <p className="text-lg font-semibold">{item.name}</p>
+              <div className="space-y-2">
+                <p className="text-lg font-semibold text-gray-800">{item.name}</p>
                 <p className="text-gray-500">৳{item.price}</p>
-                <p className="text-gray-500">Quantity: {item.quantity}</p>
+                <p className="text-gray-400">Quantity: {item.quantity}</p>
               </div>
             </div>
-          ))}
-
-          <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
-            <div className="flex justify-between mb-4">
-              <span className="text-lg font-semibold">Total Cost of All Products:</span>
-              <span className="text-lg font-semibold">৳{parseInt(cartDetails.total)}</span>
-            </div>
-
-
-
-            <div className="flex justify-between mb-4">
-              <span className="text-lg font-semibold">Delivery Charge:</span>
-              <span className="text-lg font-semibold">
-                ৳{zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge}
-              </span>
-            </div>
-
-            <div className="flex justify-between mb-4">
-  <span className="text-lg font-semibold">Total:</span>
-  <span className="text-lg font-semibold">
-    ৳{Math.round(
-      parseInt(cartDetails.total) +
-      (isCouponValid ? 0 : (zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge || 0))
-    )}
-  </span>
-</div>
-
-            <button
-              onClick={placeOrder}
-              className="w-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 text-white py-3 rounded-lg hover:from-yellow-600 hover:to-yellow-700 focus:outline-none"
-              disabled={isPlacingOrder}
-            >
-              {isPlacingOrder ? 'Placing Order...' : 'Place Order'}
-            </button>
           </div>
+        ))}
+      </div>
 
-          <div className="mt-4">
-            <p className="text-sm">Order ID: {orderId}</p>
-            <p className="text-sm">Date & Time: {generateOrderDateTime()}</p>
-          </div>
+      <div className="bg-gray-50 p-6 rounded-lg shadow-md">
+        <div className="flex justify-between mb-4 text-gray-700">
+          <span className="text-lg font-semibold">Total Cost of Products:</span>
+          <span className="text-lg font-semibold">৳{parseInt(cartDetails.total)}</span>
+        </div>
+
+        <div className="flex justify-between mb-4 text-gray-700">
+          <span className="text-lg font-semibold">Delivery Charge:</span>
+          <span className="text-lg font-semibold">
+            ৳{zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge || 'N/A'}
+          </span>
+        </div>
+
+        <div className="flex justify-between mb-4 text-gray-800">
+          <span className="text-lg font-semibold">Total Amount:</span>
+          <span className="text-lg font-semibold">
+            ৳{Math.round(
+              parseInt(cartDetails.total) +
+              (isCouponValid ? 0 : (zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge || 0))
+            )}
+          </span>
+        </div>
+
+        <div>
+          <button
+            onClick={placeOrder}
+            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 focus:outline-none transition duration-300"
+            disabled={isPlacingOrder}
+          >
+            {isPlacingOrder ? 'Placing Order...' : 'Place Order'}
+          </button>
         </div>
       </div>
+
+      {/* Order Information */}
+      <div className="mt-6 bg-white p-4 rounded-lg shadow-md border border-gray-200">
+        <p className="text-sm text-gray-500">Order ID: {orderId}</p>
+        <p className="text-sm text-gray-500">Date & Time: {generateOrderDateTime()}</p>
+      </div>
     </div>
+  </div>
+</div>
+
   );
 };
 

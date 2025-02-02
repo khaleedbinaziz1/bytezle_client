@@ -193,13 +193,20 @@ const ProductDescription = ({ id }) => {
           </div>
 
           {/* Add to Cart Section */}
+          
           <div className="flex flex-col items-center gap-4 mb-6">
+          <p className="text-xl font-semibold text-gray-800 mt-4">
+  Price: 
+  <span className="text-2xl font-bold text-teal-500 ml-2">tk.{product.price}</span>
+</p>
             <button
               className="px-8 py-3 bg-primary text-white rounded-lg w-full"
               onClick={handleAddToCart}
             >
               <FaShoppingCart className="inline mr-2" /> Add To Cart
             </button>
+ 
+
             <div className="flex items-center space-x-4 w-full justify-center">
               <button
                 className="btn-circle btn bg-gray-300"
@@ -235,12 +242,18 @@ const ProductDescription = ({ id }) => {
 
         {/* Buttons Section (Hidden on Mobile) */}
         <div className="hidden lg:flex flex-col items-center gap-4 mt-6">
+        <p className="text-xl font-semibold text-gray-800 mt-4">
+  Price: 
+  <span className="text-2xl font-bold text-teal-500 ml-2">tk.{product.price}</span>
+</p>
           <button
             className="px-8 py-3 bg-primary text-white rounded-lg"
             onClick={handleAddToCart}
           >
             <FaShoppingCart className="inline mr-2" /> Add To Cart
           </button>
+
+
           <div className="flex items-center space-x-4">
             <button
               className="btn-circle btn bg-gray-300"
