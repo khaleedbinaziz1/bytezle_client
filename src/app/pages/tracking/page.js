@@ -1,24 +1,33 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import { auth } from '../login/firebase/firebase';
-import withAuth from '@/app/checkout/withAuth';
-import Navbar from '../Navbar/Navbar';
-import Footer from '../Shared/Footer/Footer';
+import React, { useEffect, useState } from "react";
+import { auth } from "../login/firebase/firebase";
+import withAuth from "@/app/checkout/withAuth";
+import Navbar from "../Navbar/Navbar";
+import Footer from "../Shared/Footer/Footer";
+import {
+  FaShoppingCart,
+  FaTruck,
+  FaCheckCircle,
+  FaExclamationCircle,
+  FaHourglass,
+} from "react-icons/fa";
 
 const Tracking = () => {
-  const [userEmail, setUserEmail] = useState('');
+  const [userEmail, setUserEmail] = useState("");
   const [trackRecord, setTrackRecord] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(user => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setUserEmail(user.email);
         fetchUserDetailsByEmail(user.email);
       } else {
-        setUserEmail('');
+        setUserEmail("");
         setTrackRecord([]);
         setOrders([]);
+        setLoading(false);
       }
     });
     return () => unsubscribe();
@@ -33,111 +42,169 @@ const Tracking = () => {
         setTrackRecord(trackRecord);
         fetchOrders(trackRecord);
       } else {
-        console.error('Failed to fetch user details');
+        console.error("Failed to fetch user details");
       }
     } catch (error) {
-      console.error('Error fetching user details:', error);
+      console.error("Error fetching user details:", error);
     }
   };
 
   const fetchOrders = async (orderIds) => {
     try {
-      const orders = await Promise.all(orderIds.map(async (orderId) => {
-        const res = await fetch(`https://bytezle-server.vercel.app/orders/${orderId}`);
-        if (res.ok) {
-          return await res.json();
-        } else {
-          console.error(`Failed to fetch order with ID: ${orderId}`);
-          return null;
-        }
-      }));
-      setOrders(orders.filter(order => order !== null));
+      const orders = await Promise.all(
+        orderIds.map(async (orderId) => {
+          const res = await fetch(`https://bytezle-server.vercel.app/orders/${orderId}`);
+          if (res.ok) {
+            const order = await res.json();
+
+            // Fetch product details for each product in the order
+            const productsWithImages = await Promise.all(
+              order.products.map(async (product) => {
+                const productRes = await fetch(
+                  `https://bytezle-server.vercel.app/products/${product.product_id}`
+                );
+                if (productRes.ok) {
+                  const productDetails = await productRes.json();
+                  return {
+                    ...product,
+                    image: productDetails.images?.[0] || null, // Get the first image
+                  };
+                } else {
+                  console.error(`Failed to fetch product with ID: ${product.product_id}`);
+                  return product;
+                }
+              })
+            );
+
+            return { ...order, products: productsWithImages }; // Update products with images
+          } else {
+            console.error(`Failed to fetch order with ID: ${orderId}`);
+            return null;
+          }
+        })
+      );
+      setOrders(orders.filter((order) => order !== null));
+      setLoading(false);
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error("Error fetching orders:", error);
+      setLoading(false);
     }
   };
 
-  const renderOrderStatus = (status) => {
-    switch (status) {
-      case 'Pending':
-        return (
-          <ul className="steps steps-xs">
-            <li data-content="✓" className="step step-primary">Pending</li>
-            <li className="step">On the way</li>
-            <li className="step">Delivered</li>
-          </ul>
-        );
-      case 'On the way':
-        return (
-          <ul className="steps steps-xs">
-            <li data-content="✓" className="step step-primary">Pending</li>
-            <li data-content="✓" className="step step-primary">On the way</li>
-            <li className="step">Delivered</li>
-          </ul>
-        );
-      case 'Delivered':
-        return (
-          <ul className="steps steps-xs">
-            <li data-content="✓" className="step step-primary">Pending</li>
-            <li data-content="✓" className="step step-primary">On the way</li>
-            <li data-content="✓" className="step step-primary">Delivered</li>
-          </ul>
-        );
-      default:
-        return (
-          <ul className="steps steps-xs">
-            <li className="step">Pending</li>
-            <li className="step">On the way</li>
-            <li className="step">Delivered</li>
-          </ul>
-        );
-    }
+  const renderOrderStatusTimeline = (status) => {
+    const steps = [
+      { label: "Pending", icon: <FaHourglass />, color: "bg-yellow-500" },
+      { label: "On the way", icon: <FaTruck />, color: "bg-blue-500" },
+      { label: "Delivered", icon: <FaCheckCircle />, color: "bg-green-500" },
+    ];
+
+    const getStatusIndex = (status) => {
+      switch (status) {
+        case "Pending":
+          return 0;
+        case "On the way":
+          return 1;
+        case "Delivered":
+          return 2;
+        default:
+          return -1;
+      }
+    };
+
+    const currentIndex = getStatusIndex(status);
+
+    return (
+      <div className="relative w-full h-16">
+        <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 rounded-full transform -translate-y-1/2"></div>
+        {steps.map((step, index) => (
+          <div
+            key={index}
+            className={`absolute top-1/2 transform -translate-y-1/2 ${
+              index === 0 ? "left-0" : index === 1 ? "left-1/2 -translate-x-1/2" : "right-0"
+            }`}
+          >
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
+                index <= currentIndex ? step.color : "bg-gray-300"
+              }`}
+            >
+              {React.cloneElement(step.icon, {
+                className: "text-white",
+              })}
+            </div>
+            <p className="mt-2 text-xs text-center font-medium text-gray-600">{step.label}</p>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
-    <div className="" style={{ marginTop: '160px' }}>
+    <div className="bg-gray-100 min-h-screen">
 
-      <div className="tracking-container max-w-4xl mx-auto p-4 border border-gray-200 shadow-lg bg-white rounded-lg">
-        <h1 className="text-2xl font-semibold mb-6">Order Tracking</h1>
-        {userEmail ? (
-          <>
-
-            {orders.length > 0 ? (
-              <div className="space-y-4">
-                {orders.slice().reverse().map((order, index) => (
-                  <div key={index} className="border p-3 rounded-lg shadow-sm">
-                    <p className="text-md font-medium">Order ID: {order.order_id}</p>
-                    <p>Total Price: ৳{order.total_price}</p>
-                    <p>Ordered At: {new Date(order.timestamp).toLocaleString()}</p>
-                    <p>Location: {order.address}</p>
-                    <p>Phone: {order.phone_no}</p>
-                    <div className="mt-2">
-                      <p className="font-medium mb-1">Order Status:</p>
-                      {renderOrderStatus(order.status)}
-                    </div>
-                    <div className="mt-2">
-                      <p className="font-medium mb-1">Products:</p>
-                      <ul className="list-disc list-inside">
-                        {order.products.map((product, idx) => (
-                          <li key={idx}>
-                            {product.product_name} - ৳{product.price} x {product.quantity}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+      <div className="max-w-6xl mx-auto p-8">
+        <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">Order Tracking</h1>
+        {loading ? (
+          <div className="text-center text-xl text-gray-500">Loading your orders...</div>
+        ) : userEmail ? (
+          orders.length > 0 ? (
+            <div className="space-y-8">
+              {orders.reverse().map((order, index) => (
+                <div
+                  key={index}
+                  className="p-6 rounded-lg shadow-lg bg-white hover:bg-gray-50 transition duration-300"
+                >
+                  <div className="flex justify-between items-center mb-4">
+                    <p className="text-lg font-semibold text-gray-700">
+                      Order ID:{" "}
+                      <span className="font-bold text-indigo-600">{order.order_id}</span>
+                    </p>
+                    <p className="text-lg font-bold text-emerald-600">৳{order.total_price}</p>
                   </div>
-                ))}
+                  <p className="text-sm text-gray-500">
+                    Ordered At: {new Date(order.timestamp).toLocaleString()}
+                  </p>
+                  <p className="text-sm text-gray-500">Location: {order.address}</p>
+                  <p className="text-sm text-gray-500">Phone: {order.phone_no}</p>
 
-              </div>
-            ) : (
-              <p>No orders found.</p>
-            )}
-          </>
+                  <div className="mt-4">
+                    <p className="font-semibold text-gray-600">Order Status:</p>
+                    {renderOrderStatusTimeline(order.status)}
+                  </div>
+
+                  <div className="mt-4">
+                    <p className="font-semibold text-gray-600">Products:</p>
+                    <ul className="list-disc pl-6 space-y-2 text-gray-500">
+                      {order.products.map((product, idx) => (
+                        <li key={idx} className="flex items-center space-x-4">
+                          {product.image && (
+                            <img
+                              src={product.image}
+                              alt={product.product_name}
+                              className="w-16 h-16 object-cover rounded-md"
+                            />
+                          )}
+                          <div>
+                            <p className="text-sm font-medium">{product.product_name}</p>
+                            <p className="text-sm">৳{product.price} x {product.quantity}</p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-xl text-gray-500">No orders found.</p>
+          )
         ) : (
-          <h3 className="text-md font-semibold mb-4">You are not logged in.</h3>
+          <h3 className="text-lg font-medium text-center text-gray-500">
+            You are not logged in.
+          </h3>
         )}
       </div>
-
+    
     </div>
   );
 };

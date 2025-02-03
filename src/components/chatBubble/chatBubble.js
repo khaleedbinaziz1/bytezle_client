@@ -15,7 +15,7 @@ const ChatBubble = () => {
   const callUrl = `tel:+${phoneNumber}`;
 
   // Messenger
-  const messengerUrl = `https://m.me/${phoneNumber}`; // Replace with your Facebook Messenger link
+  const messengerUrl = `https://m.me/${140669242459651}`; // Replace with your Facebook Messenger link
 
   const handleWhatsappClick = () => {
     window.location.href = whatsappUrl; // Redirect to WhatsApp URL directly
@@ -49,7 +49,7 @@ const ChatBubble = () => {
         onMouseOver={() => setIsHovered(true)}  // Enable hover animation
         onMouseOut={() => setIsHovered(false)} // Disable hover animation
         style={{
-          backgroundColor: '#25D366', // WhatsApp green
+          backgroundColor: '#F8CF27', // WhatsApp green
           color: 'white',
           padding: '15px',
           borderRadius: '50%',
@@ -125,33 +125,7 @@ const ChatBubble = () => {
         </div>
       )}
 
-      {/* Call Button */}
-      {showBubbles && (
-        <div
-          onClick={handleCallClick}
-          style={{
-            backgroundColor: '#34b7f1', // Call button color
-            color: 'white',
-            padding: '15px',
-            borderRadius: '50%',
-            fontSize: '18px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 6px 15px rgba(0, 0, 0, 0.1)',
-            cursor: 'pointer',
-            transition: 'transform 0.3s ease, opacity 0.3s ease',
-            width: '60px',
-            height: '60px',
-            opacity: showBubbles ? '1' : '0',
-            transform: showBubbles ? 'translateY(0)' : 'translateY(30px)',
-            transitionDelay: '0.6s',
-            zIndex: 1030,
-          }}
-        >
-          <FaPhoneAlt size={30} />
-        </div>
-      )}
+     
 
       {/* Add pulse animation for main bubble only */}
       <style>{`
