@@ -102,11 +102,10 @@ const ProductDescription = ({ id }) => {
                   alt={`Thumbnail ${index + 1}`}
                   width={80}
                   height={80}
-                  className={`object-cover border-2 ${
-                    selectedImageIndex === index
+                  className={`object-cover border-2 ${selectedImageIndex === index
                       ? "border-primary"
                       : "border-transparent"
-                  }`}
+                    }`}
                 />
               </div>
             ))}
@@ -182,30 +181,29 @@ const ProductDescription = ({ id }) => {
                   alt={`Thumbnail ${index + 1}`}
                   width={80}
                   height={80}
-                  className={`object-cover border-2 ${
-                    selectedImageIndex === index
+                  className={`object-cover border-2 ${selectedImageIndex === index
                       ? "border-primary"
                       : "border-transparent"
-                  }`}
+                    }`}
                 />
               </div>
             ))}
           </div>
 
           {/* Add to Cart Section */}
-          
+
           <div className="flex flex-col items-center gap-4 mb-6">
-          <p className="text-xl font-semibold text-gray-800 mt-4">
-  Price: 
-  <span className="text-2xl font-bold text-teal-500 ml-2">tk.{product.price}</span>
-</p>
+            <p className="text-xl font-semibold text-gray-800 mt-4">
+              Price:
+              <span className="text-2xl font-bold text-teal-500 ml-2">tk.{product.price}</span>
+            </p>
             <button
               className="px-8 py-3 bg-primary text-white rounded-lg w-full"
               onClick={handleAddToCart}
             >
               <FaShoppingCart className="inline mr-2" /> Add To Cart
             </button>
- 
+
 
             <div className="flex items-center space-x-4 w-full justify-center">
               <button
@@ -242,16 +240,16 @@ const ProductDescription = ({ id }) => {
 
         {/* Buttons Section (Hidden on Mobile) */}
         <div className="hidden lg:flex flex-col items-center gap-4 mt-6">
-        <p className="text-xl font-semibold text-gray-800 mt-4">
-  Price: 
-  <span className="text-2xl font-bold text-teal-500 ml-2">tk.{product.price}</span>
-</p>
+          <p className="text-xl font-semibold text-gray-800 mt-4">
+            Price:
+            <span className="text-2xl font-bold text-teal-500 ml-2">tk.{product.price}</span>
+          </p>
           <button
-            className="px-8 py-3 bg-primary text-white rounded-lg"
-            onClick={handleAddToCart}
-          >
-            <FaShoppingCart className="inline mr-2" /> Add To Cart
-          </button>
+  className="px-6 py-2 bg-secondary text-white font-semibold border border-gray-300 shadow-sm hover:bg-secondary-dark transition duration-300"
+  onClick={handleAddToCart}
+>
+  <FaShoppingCart className="inline mr-2" /> Add To Cart
+</button>
 
 
           <div className="flex items-center space-x-4">

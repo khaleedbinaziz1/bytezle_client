@@ -36,9 +36,16 @@ const FeaturedProducts = () => {
   const handleAddToWishlist = async (productId) => {
     await addToWishlist(productId);
   };
-
-  const handleProductClick = (id) => {
-    router.push(`/pages/freshdeals/?product=${id}`, undefined, { shallow: true });
+  const handleProductClick = (id, productName) => {
+    // Ensure productName is defined and is a string
+    if (typeof productName === 'string') {
+      // Extract the first word from the product name
+      const firstWord = productName.split(' ')[0];
+      // Pass both the product ID and the first word in the URL
+      router.push(`/pages/freshdeals?product=${id}&name=${encodeURIComponent(firstWord)}`, undefined, { shallow: true });
+    } else {
+      console.error('Product name is undefined or not a string:', productName);
+    }
   };
 
   const handleBackClick = () => {
@@ -105,7 +112,7 @@ const FeaturedProducts = () => {
           <div
             key={product._id}
             className="card bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl cursor-pointer transition-all duration-300 w-48 flex-shrink-0"
-            onClick={() => handleProductClick(product._id)}
+            onClick={() => handleProductClick(product._id,product.name)}
           >
             {/* Image */}
             {product.images && product.images.length > 0 ? (

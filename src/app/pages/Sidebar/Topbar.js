@@ -48,7 +48,7 @@ const Topbar = () => {
   return (
     <div className="navbar bg-secondary text-white shadow-lg fixed top-[-50px] left-0 w-full hidden md:block z-1">
       <div className="navbar-center flex justify-center py-4">
-        <ul className="flex space-x-3">
+        <ul className="flex space-x-1">
           {categories.map((category) => (
             <li
               key={category._id}
@@ -60,9 +60,9 @@ const Topbar = () => {
                 className="flex items-center cursor-pointer text-white hover:text-primary transition-colors duration-300"
                 onClick={() => handleCategoryClick(category._id)}
               >
-                <span className="text-sm font-bold">{category.name}</span>
+                <small className="text-sm font-bold">{category.name}</small>
                 <FaChevronDown
-                  className={`w-4 h-4 ml-2 transition-transform ${
+                  className={`w-4 h-4 transition-transform ${
                     expandedCategory === category._id ? 'rotate-180' : ''
                   }`}
                 />

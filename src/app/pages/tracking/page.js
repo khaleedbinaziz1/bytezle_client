@@ -114,12 +114,12 @@ const Tracking = () => {
     const currentIndex = getStatusIndex(status);
 
     return (
-      <div className="relative w-full h-16">
+      <div className="relative w-full h-16" >
         <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 rounded-full transform -translate-y-1/2"></div>
         {steps.map((step, index) => (
           <div
             key={index}
-            className={`absolute top-1/2 transform -translate-y-1/2 ${
+            className={`absolute  top-1/2 transform -translate-y-1/2 ${
               index === 0 ? "left-0" : index === 1 ? "left-1/2 -translate-x-1/2" : "right-0"
             }`}
           >
@@ -140,7 +140,7 @@ const Tracking = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-gray-100 min-h-screen "style={{marginTop: '150px'}}>
 
       <div className="max-w-6xl mx-auto p-8">
         <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">Order Tracking</h1>

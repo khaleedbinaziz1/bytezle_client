@@ -28,17 +28,14 @@ const Searchbar = () => {
       try {
         const response = await fetch('https://bytezle-server.vercel.app/products');
         const data = await response.json();
-
         // Normalize product names for easier matching
         const normalizedProducts = data.map((product) => ({
           ...product,
           normalizedName: normalizeString(product.name),
         }));
-
         // Filter for products with showProduct set to "On"
         const filteredProducts = normalizedProducts.filter((product) => product.showProduct === "On");
         setProducts(filteredProducts);
-
         // Initialize Fuse.js with product data
         const fuseInstance = new Fuse(filteredProducts, {
           keys: ['normalizedName'], // Search against normalized names
@@ -52,23 +49,19 @@ const Searchbar = () => {
         console.error("Error fetching products:", error);
       }
     };
-
     fetchProducts();
   }, []);
 
   const handleChange = (e) => {
     const value = e.target.value;
     setQuery(value);
-
     if (value.trim() && fuse) {
       // Normalize query for matching
       const normalizedQuery = normalizeString(value);
       const fuzzyResults = fuse.search(normalizedQuery);
-
       // Extract the matching items
       const filteredSuggestions = fuzzyResults.map((result) => result.item);
       setSuggestions(filteredSuggestions);
-
       // Navigate to the search results page in real-time
       router.push(`/pages/freshdeals?q=${encodeURIComponent(value.trim())}`);
     } else {
@@ -84,7 +77,6 @@ const Searchbar = () => {
     setSuggestions([]); // Clear suggestions
     router.push(`/pages/freshdeals?q=${encodedQuery}`); // Navigate with the extracted query
   };
-  
 
   const handleClickOutside = (event) => {
     if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
@@ -102,56 +94,57 @@ const Searchbar = () => {
   const handleKeyPress = (event) => {
     if (event.key === "Enter") {
       router.push(`/pages/freshdeals?q=${encodeURIComponent(query)}`);
+      setSuggestions([]); // Close suggestions on Enter key press
     }
+  };
+
+  const handleSearchButtonClick = () => {
+    router.push(`/pages/freshdeals?q=${encodeURIComponent(query)}`);
+    setSuggestions([]); // Close suggestions when search icon is clicked
   };
 
   return (
     <div className="relative w-full" ref={wrapperRef}>
-    {/* Search Input and Button */}
-    <div className="flex items-center space-x-2">
-      <input
-        ref={inputRef}
-        type="text"
-        className="w-full px-4 py-3 text-sm font-medium text-gray-700 placeholder-gray-400 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-        placeholder="Search for products..."
-        value={query}
-        onChange={handleChange}
-        onKeyPress={handleKeyPress}
-      />
-      <button
-        className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300"
-        onClick={() => router.push(`/pages/freshdeals?q=${encodeURIComponent(query)}`)}
-      >
-        <FaSearch className="w-5 h-5" />
-      </button>
+      <div className="flex items-center space-x-2">
+        <input
+          ref={inputRef}
+          type="text"
+          className="input input-bordered rounded-none input-primary w-full"
+          placeholder="Search for products..."
+          value={query}
+          onChange={handleChange}
+          onKeyPress={handleKeyPress}
+        />
+        <button
+          className="btn btn-primary"
+          onClick={handleSearchButtonClick} // Use the new handler
+        >
+          <FaSearch />
+        </button>
+      </div>
+      {suggestions.length > 0 && (
+        <ul className="absolute w-full bg-white border border-gray-300 mt-1 rounded shadow-lg z-10 max-h-[500px] overflow-y-auto">
+          {suggestions.map((suggestion, index) => (
+            <li
+              key={index}
+              className="p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-200"
+              onClick={() => handleSuggestionClick(suggestion)}
+            >
+              <img
+                src={suggestion.images[0]} // Assuming the first image in the `images` array
+                alt={suggestion.name}
+                className="w-12 h-12 object-cover rounded"
+                loading="lazy"
+              />
+              <div className="text-sm">
+                <p className="font-medium">{suggestion.name}</p>
+                <p className="text-gray-500 text-xs">Price: {suggestion.price} BDT</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
-  
-    {/* Suggestions Dropdown */}
-    {suggestions.length > 0 && (
-      <ul className="absolute w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-xl z-10 max-h-[500px] overflow-y-auto">
-        {suggestions.map((suggestion, index) => (
-          <li
-            key={index}
-            className="flex items-center space-x-4 p-3 cursor-pointer hover:bg-gray-100 transition duration-200"
-            onClick={() => handleSuggestionClick(suggestion)}
-          >
-            {/* Product Image */}
-            <img
-              src={suggestion.images[0]} // Assuming the first image in the `images` array
-              alt={suggestion.name}
-              className="w-14 h-14 object-cover rounded-md"
-              loading="lazy"
-            />
-            {/* Product Details */}
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-800">{suggestion.name}</p>
-              <p className="text-xs text-gray-500">Price: {suggestion.price} BDT</p>
-            </div>
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
   );
 };
 

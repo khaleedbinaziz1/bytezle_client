@@ -7,6 +7,7 @@ import { db, auth } from '../pages/login/firebase/firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { clearCart } from '../pages/Shared/Cart/cartService';
+import PaymentModal from './PaymentModal';
 
 const Checkout = ({ user }) => {
   const [cartDetails, setCartDetails] = useState({ items: [], total: 0 });
@@ -14,7 +15,7 @@ const Checkout = ({ user }) => {
     name: '',
     location: '',
     phoneNumber: '',
-    email:'',
+    email: '',
     zone: '',
   });
   const [name, setName] = useState('');
@@ -27,10 +28,14 @@ const Checkout = ({ user }) => {
   const [zones, setZones] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
-
+  const [productDetails, setProductDetails] = useState({});
   const router = useRouter();
 
 
+
+  const [paymentOption, setPaymentOption] = useState('full'); // To track payment option
+  const [totalPartialPrice, setTotalPartialPrice] = useState(0);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false); // State to control modal visibility
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
@@ -44,7 +49,7 @@ const Checkout = ({ user }) => {
           name: '',
           location: '',
           phoneNumber: '',
-          email:'',
+          email: '',
           zone: '',
         });
       }
@@ -230,12 +235,12 @@ const Checkout = ({ user }) => {
     }
   };
 
-  const createOrder = async () => {
+
+
+  const createOrder = async (money_phone_number) => {
     const selectedZone = zones.find(zone => zone.name === shippingInfo.zone);
-    // const deliveryCharge = cartDetails.total > 2000 ? 0 : (selectedZone ? selectedZone.delivery_charge : 0);
     const deliveryCharge = selectedZone.delivery_charge;
-
-
+  
     const order = {
       order_id: orderId,
       deliveryCharge: isCouponValid ? 0 : deliveryCharge,
@@ -243,7 +248,11 @@ const Checkout = ({ user }) => {
       address: shippingInfo.location,
       zone: shippingInfo.zone,
       phone_no: shippingInfo.phoneNumber,
-      email:shippingInfo.email,
+      money_phone_number: money_phone_number, // Save phone number as money_phone_number
+      email: shippingInfo.email,
+      totalPartialPrice:totalPartialPrice,
+      dueAmount:dueAmount,
+
       products: cartDetails.items.map(item => ({
         product_id: item._id,
         product_name: item.name,
@@ -251,22 +260,20 @@ const Checkout = ({ user }) => {
         quantity: item.quantity
       })),
       product_total: Math.round(cartDetails.total),
-      total_price: Math.round(parseInt(cartDetails.total) + (isCouponValid ? 0 : deliveryCharge) ),
+      total_price: Math.round(parseInt(cartDetails.total) + (isCouponValid ? 0 : deliveryCharge)),
       status: "Pending",
       timestamp: new Date().toISOString(),
-
-
-
     };
-
+  
     try {
       const res = await fetch('https://bytezle-server.vercel.app/addorders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(order)
       });
-
+  
       if (res.ok) {
+        // Optionally, handle the response, e.g., order confirmation, etc.
         await updateTrackRecord(orderId);
       } else {
         console.error('Failed to create order');
@@ -275,6 +282,8 @@ const Checkout = ({ user }) => {
       console.error('Error:', error);
     }
   };
+  
+  
 
   const fetchUserIdByEmail = async (email) => {
     try {
@@ -320,6 +329,21 @@ const Checkout = ({ user }) => {
     }
   };
 
+  const handleConfirmPayment = async (phoneNumber) => {
+    // Handle the payment confirmation (e.g., log or send to backend)
+  
+    console.log('Phone Number:', phoneNumber);
+  
+    // // After payment, create the order
+    // await createOrder(phoneNumber);
+  
+    // Record coupon usage if valid
+    if (isCouponValid) {
+      await recordCouponUsage(userEmail, couponCode);
+    }
+  };
+  
+
   const placeOrder = async () => {
     if (isPlacingOrder) return;
     setIsPlacingOrder(true);
@@ -339,6 +363,8 @@ const Checkout = ({ user }) => {
       alert("Please fill out all required fields before placing the order.");
       setIsPlacingOrder(false);
       return;
+
+
     }
 
     try {
@@ -348,11 +374,11 @@ const Checkout = ({ user }) => {
         await recordCouponUsage(userEmail, couponCode);
       }
 
-      clearCart();
-      localStorage.removeItem('cartDetails');
-      setCartDetails({ items: [], total: 0 });
+      // clearCart();
+      // localStorage.removeItem('cartDetails');
+      // setCartDetails({ items: [], total: 0 });
 
-      router.push('/pages/completion');
+     
     } catch (error) {
       console.error("Error placing order:", error);
     } finally {
@@ -366,148 +392,277 @@ const Checkout = ({ user }) => {
     setIsCouponValid(false);
   };
 
-  const generateOrderDateTime = () => {
-    const now = new Date();
-    return now.toLocaleString();
+  const openModal = () => {
+    setIsPaymentModalOpen(true); // Open the payment modal
+    setIsPlacingOrder(false);
   };
 
+  useEffect(() => {
+    const savedCartDetails = localStorage.getItem('cartDetails');
+    if (savedCartDetails) {
+      const cart = JSON.parse(savedCartDetails);
+      setCartDetails(cart);
+      fetchProductDetails(cart.items);  // Fetch details for each product
+    }
+  }, []);
+
+  const fetchProductDetails = async (items) => {
+    try {
+      const productPromises = items.map(async (item) => {
+        const res = await fetch(`https://bytezle-server.vercel.app/products/${item._id}`);
+        if (res.ok) {
+          const productData = await res.json();
+          setProductDetails((prevDetails) => ({
+            ...prevDetails,
+            [item._id]: productData,  // Store product details with _id as key
+          }));
+        } else {
+          console.error(`Failed to fetch product details for ${item._id}`);
+        }
+      });
+
+      await Promise.all(productPromises);
+    } catch (error) {
+      console.error('Error fetching product details:', error);
+    }
+  };
+
+
+
+
+  // Calculate total partial price when component renders or cart changes
+  useEffect(() => {
+    const totalPartial = cartDetails.items.reduce((total, item) => {
+      const productData = productDetails[item._id];
+      return total + (productData ? parseInt(productData.partial) * item.quantity : 0);
+    }, 0);
+  
+    setTotalPartialPrice(totalPartial);
+  }, [cartDetails.items, productDetails]);
+  
+  // Calculate total cost including delivery charge
+  const totalCost = Math.round(
+    parseInt(cartDetails.total) +
+    (isCouponValid ? 0 : (zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge || 0))
+  );
+  
+  const dueAmount = paymentOption === 'partial' ? totalCost - totalPartialPrice : 0;
+  
+
   return (
-<div className="checkout-container max-w-6xl mx-auto p-8 mt-16">
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-    {/* Shipping Information Section */}
-    <div className="bg-white p-8 rounded-lg shadow-md border border-gray-200 space-y-8">
-      <h3 className="text-2xl font-semibold text-gray-800 mb-6">Shipping Information</h3>
-      
-      <form className="space-y-6">
+    <div className="checkout-container max-w-4xl mx-auto p-6 border border-gray-200 shadow-lg" style={{ marginTop: '150px' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
-          <label htmlFor="name" className="text-sm font-medium text-gray-700">Full Name:</label>
-          <input
-            type="text"
-            id="name"
-            className="form-input mt-1 block w-full p-4 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800"
-            placeholder="Enter your full name"
-            value={shippingInfo.name}
-            onChange={(e) => setShippingInfo({ ...shippingInfo, name: e.target.value })}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number:</label>
-          <input
-            type="tel"
-            id="phoneNumber"
-            className="form-input mt-1 block w-full p-4 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800"
-            placeholder="Enter your phone number"
-            value={shippingInfo.phoneNumber}
-            onChange={(e) => setShippingInfo({ ...shippingInfo, phoneNumber: e.target.value })}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="email" className="text-sm font-medium text-gray-700">Email Address:</label>
-          <input
-            type="email"
-            id="email"
-            className="form-input mt-1 block w-full p-4 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800"
-            placeholder="Enter your email"
-            value={shippingInfo.email}
-            onChange={(e) => setShippingInfo({ ...shippingInfo, email: e.target.value })}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="location" className="text-sm font-medium text-gray-700">Shipping Address:</label>
-          <textarea
-            id="location"
-            className="form-input mt-1 block w-full p-4 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800"
-            placeholder="Enter your full address"
-            value={shippingInfo.location}
-            onChange={(e) => setShippingInfo({ ...shippingInfo, location: e.target.value })}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="zone" className="text-sm font-medium text-gray-700">Area/Zone:</label>
-          <select
-            id="zone"
-            className="form-select mt-1 block w-full p-4 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800"
-            value={shippingInfo.zone}
-            onChange={(e) => setShippingInfo({ ...shippingInfo, zone: e.target.value })}
-            required
-          >
-            <option value="">Select Area</option>
-            {zones.map((zone, index) => (
-              <option key={index} value={zone.name}>{zone.name}</option>
-            ))}
-          </select>
-        </div>
-      </form>
-    </div>
+          <div className="bg-gray-50 p-2 rounded-lg">
+            <h3 className="text-xl font-semibold mb-4">Shipping Information</h3>
+            <form className="space-y-4">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name:</label>
+                <input
+                  type="text"
+                  id="name"
+                  
+                  className="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
+                  placeholder={'Enter your name'}
+                  value={shippingInfo.name}
+                  onChange={(e) => setShippingInfo({ ...shippingInfo, name: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">Phone Number:</label>
+                <input
+                  type="tel"
+                  id="phoneNumber"
+                  className="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
+                  placeholder={'Enter your phone number'}
+                  value={shippingInfo.phoneNumber}
+                  onChange={(e) => setShippingInfo({ ...shippingInfo, phoneNumber: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Phone Number:</label>
+                <input
+                  type="email"
+                  id="email"
+                  className="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
+                  placeholder={'Enter your email'}
+                  value={shippingInfo.email}
+                  onChange={(e) => setShippingInfo({ ...shippingInfo, email: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location:</label>
+                <textarea
+                  id="location"
+                  className="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
+                  placeholder="Enter your location"
+                  value={shippingInfo.location}
+                  onChange={(e) => setShippingInfo({ ...shippingInfo, location: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="zone" className="block text-sm font-medium text-gray-700">Area:</label>
+                <select
+                  id="zone"
+                  className="form-select mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
+                  value={shippingInfo.zone}
+                  onChange={(e) => setShippingInfo({ ...shippingInfo, zone: e.target.value })}
+                  required
+                >
+                  <option value="">Select Area</option>
+                  {zones.map((zone, index) => (
+                    <option key={index} value={zone.name}>{zone.name}</option>
+                  ))}
+                </select>
+              </div>
 
-    {/* Order Summary Section */}
-    <div className="bg-white p-8 rounded-lg shadow-md border border-gray-200 space-y-8">
-      <h3 className="text-2xl font-semibold text-gray-800 mb-6">Order Summary</h3>
-      
-      <div className="space-y-6">
-        {cartDetails.items.map((item, index) => (
-          <div key={index} className="flex items-center justify-between p-4 border-b border-gray-200">
-            <div className="flex items-center space-x-4">
-              <div className="w-20 h-20 relative rounded-lg overflow-hidden">
-                <Image src={item.images[0]} alt={item.name} layout="fill" objectFit="cover" />
-              </div>
-              <div className="space-y-2">
-                <p className="text-lg font-semibold text-gray-800">{item.name}</p>
-                <p className="text-gray-500">৳{item.price}</p>
-                <p className="text-gray-400">Quantity: {item.quantity}</p>
-              </div>
-            </div>
+
+            </form>
           </div>
-        ))}
-      </div>
 
-      <div className="bg-gray-50 p-6 rounded-lg shadow-md">
-        <div className="flex justify-between mb-4 text-gray-700">
-          <span className="text-lg font-semibold">Total Cost of Products:</span>
-          <span className="text-lg font-semibold">৳{parseInt(cartDetails.total)}</span>
-        </div>
-
-        <div className="flex justify-between mb-4 text-gray-700">
-          <span className="text-lg font-semibold">Delivery Charge:</span>
-          <span className="text-lg font-semibold">
-            ৳{zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge || 'N/A'}
-          </span>
-        </div>
-
-        <div className="flex justify-between mb-4 text-gray-800">
-          <span className="text-lg font-semibold">Total Amount:</span>
-          <span className="text-lg font-semibold">
-            ৳{Math.round(
-              parseInt(cartDetails.total) +
-              (isCouponValid ? 0 : (zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge || 0))
+          <div className="bg-gray-50 p-4 rounded-lg mt-6">
+            <h3 className="text-xl font-semibold mb-4">Coupon Code</h3>
+            <div className="flex">
+              <input
+                type="text"
+                className="form-input flex-grow mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
+                placeholder="Enter coupon code"
+                value={couponCode}
+                onChange={handleCouponChange}
+        
+              />
+              <button
+                onClick={validateCoupon}
+                className="ml-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+              >
+                Apply
+              </button>
+            </div>
+            {isCouponChecked && (
+              isCouponValid ? (
+                <p className="text-#FFD601-500 mt-2">Coupon applied successfully!</p>
+              ) : (
+                <p className="text-red-500 mt-2">Invalid coupon code</p>
+              )
             )}
-          </span>
+          </div>
         </div>
 
         <div>
-          <button
-            onClick={placeOrder}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 focus:outline-none transition duration-300"
-            disabled={isPlacingOrder}
-          >
-            {isPlacingOrder ? 'Placing Order...' : 'Place Order'}
-          </button>
+    <h3 className="text-xl font-semibold mb-4 p-2">Order Summary</h3>
+    {cartDetails.items.map((item, index) => {
+      const productData = productDetails[item._id]; // Access product details by _id
+
+      return (
+        <div key={index} className="flex items-center mb-4">
+          <div className="w-16 h-16 relative">
+            <Image src={item.images[0]} alt={item.name}  width={200} height={200} />
+          </div>
+          <div className="ml-4">
+            <p className="text-lg font-semibold">{item.name}</p>
+       
+            <p className="text-gray-500">৳{item.price}</p>
+            <p className="text-gray-500">Quantity: {item.quantity}</p>
+
+       
+          </div>
+        </div>
+      );
+    })}
+
+    <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
+      <div className="flex justify-between mb-4">
+        <span className="text-lg font-semibold">Total Cost of All Products:</span>
+        <span className="text-lg font-semibold">৳{parseInt(cartDetails.total)}</span>
+      </div>
+
+      <div className="flex justify-between mb-4">
+        <span className="text-lg font-semibold">Delivery Charge:</span>
+        <span className="text-lg font-semibold">
+          ৳{zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge}
+        </span>
+      </div>
+
+      <div className="flex justify-between mb-4">
+        <span className="text-lg font-semibold">Total:</span>
+        <span className="text-lg font-semibold">
+          ৳{totalCost}
+        </span>
+      </div>
+
+      {/* Payment Option Selection */}
+      <div className="mb-4">
+        <label className="text-lg font-semibold">Payment Option:</label>
+        <div>
+          <label className="mr-4">
+            <input
+              type="radio"
+              name="paymentOption"
+              value="full"
+              checked={paymentOption === 'full'}
+              onChange={() => setPaymentOption('full')}
+              required
+            />
+            Full Payment
+          </label>
+          <label>
+            <input
+              type="radio"
+              
+              name="paymentOption"
+              value="partial"
+              checked={paymentOption === 'partial'}
+              onChange={() => setPaymentOption('partial')}
+            />
+            Partial Payment
+          </label>
         </div>
       </div>
 
-      {/* Order Information */}
-      <div className="mt-6 bg-white p-4 rounded-lg shadow-md border border-gray-200">
-        <p className="text-sm text-gray-500">Order ID: {orderId}</p>
-        <p className="text-sm text-gray-500">Date & Time: {generateOrderDateTime()}</p>
+      {/* Show partial payment amount and due amount if partial payment is selected */}
+      {paymentOption === 'partial' && (
+        <>
+          <div className="flex justify-between mb-4">
+            <span className="text-lg font-semibold">Advance Amount:</span>
+            <span className="text-lg font-semibold">৳{totalPartialPrice}</span>
+          </div>
+
+          <div className="flex justify-between mb-4">
+            <span className="text-lg font-semibold">Due Amount:</span>
+            <span className="text-lg font-semibold">৳{dueAmount}</span>
+          </div>
+        </>
+      )}
+
+      <button
+        onClick={openModal}
+        className="w-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 text-white py-3 rounded-lg hover:from-yellow-600 hover:to-yellow-700 focus:outline-none"
+        disabled={isPlacingOrder}
+      >
+        {isPlacingOrder ? 'Placing Order...' : 'Place Order'}
+      </button>
+    </div>
+ 
+    <PaymentModal
+  isOpen={isPaymentModalOpen}
+  onClose={() => setIsPaymentModalOpen(false)}
+  totalCost={totalCost}
+  dueAmount={dueAmount}
+  paymentOption={paymentOption}
+  onConfirmPayment={handleConfirmPayment}
+  totalPartialPrice={totalPartialPrice}
+  placeOrder={placeOrder}
+  createOrder={createOrder}  // Pass createOrder as a prop
+/>
+
+
+  </div>
       </div>
     </div>
-  </div>
-</div>
-
   );
 };
 
