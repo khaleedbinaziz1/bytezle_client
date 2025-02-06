@@ -16,11 +16,12 @@ import DipsSpread from './pages/FiveSelCat/DipsSpreads';
 import RefreshmentHaven from './pages/FiveSelCat/RefreshmentHaven';
 import GoUpButton from './GoUpButton'; // Import the GoUpButton component
 import { useRouter } from 'next/navigation';
-import Messenger from '@/components/messenger';
+
 import AllProducts from './pages/AllProducts/AllProducts';
 import WhatsAppButton from '../components/whatapp/whatsapp';
 import MessengerButton from '../components/whatapp/messenger';
 import ChatBubble from '../components/chatBubble/chatBubble';
+import TopBrands from '../components/TopBrands/TopBrands';
 
 export default function Home() {
 
@@ -38,14 +39,15 @@ export default function Home() {
 <ChatBubble />
           <Hero />
 
-          <Messenger />
+
           <ChatBubble />
           <InfoCards />
-          <Categories />
+          <TopBrands />
 
 
           <FeaturedProducts />
           <AllProducts />
+        
 
         </Suspense>
       </div>

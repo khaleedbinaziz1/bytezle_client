@@ -10,7 +10,7 @@ import { useCart } from '../Shared/Cart/CartProvider';
 import Cart from '../Shared/Cart/Cart';
 import ProductDescription from '../productdescription/page';
 import addToWishlist from '../Wishlist/addToWishlist';
-import bannerImage from '../../../images/all_products_bytezle.png'
+import bannerImage from '../../../images/all_product_bytezle.gif'
 
 
 

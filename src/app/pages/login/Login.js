@@ -61,16 +61,16 @@ const Login = () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-  
+
       if (user) {
         await updateProfile(user, {
           displayName: name,
           phoneNumber: phone
         });
-  
+
         const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
         await saveCart(user.uid, cartItems);
-  
+
         // Save user info to Firestore
         await setDoc(doc(db, 'users', user.uid), {
           uid: user.uid,
@@ -78,7 +78,7 @@ const Login = () => {
           email,
           phone
         });
-  
+
         // Upload user data to MongoDB through your server
         const response = await fetch('https://bytezle-server.vercel.app/addusers', {
           method: 'POST',
@@ -92,9 +92,9 @@ const Login = () => {
             phone
           }),
         });
-  
+
         const data = await response.json();
-  
+
         if (response.ok) {
           setToastMessage("Sign up successful!");
           setShowToast(true);
@@ -110,7 +110,7 @@ const Login = () => {
       setError(getErrorMessage(err.code || err.message));
     }
   };
-  
+
 
   const handleLoginSuccess = async (user) => {
     setToastMessage("Login successful!");
@@ -128,116 +128,133 @@ const Login = () => {
 
   return (
     <>
-      {showModal && (
-        <dialog id="login_modal" className="modal modal-bottom sm:modal-middle">
-          <div className="modal-box relative">
+    {showModal && (
+      <dialog id="login_modal" className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box relative bg-white rounded-lg shadow-xl p-6 max-w-md">
+          {/* Close Button */}
           <button
-  className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-  onClick={() => {
-    setShowModal(false); // Immediately set to false
-    setTimeout(() => setShowModal(true), 500); // Auto-reset to true after 5s
-  }}
->
-              <FaTimes />
+            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 transition-colors"
+            onClick={() => {
+              setShowModal(false); // Immediately set to false
+              setTimeout(() => setShowModal(true), 500); // Auto-reset to true after 5s
+            }}
+          >
+            <FaTimes className="w-5 h-5" />
+          </button>
+  
+          {/* Modal Title */}
+          <h3 className="font-bold text-xl mb-4 text-gray-800">
+            {isSignUp ? 'Sign Up' : 'Login'}
+          </h3>
+  
+          {/* Modal Content */}
+          <div className="space-y-4">
+            {/* Google Login Button */}
+            <button
+              className="btn btn-block bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center py-2 rounded-lg transition-all"
+              onClick={handleGoogleLogin}
+            >
+              <FaGoogle className="mr-2" /> Sign Up or Login with Google
             </button>
-
-            <h3 className="font-bold text-md">{isSignUp ? 'Sign Up' : 'Login'}</h3>
-            <div className="py-4">
+  
+            {/* Sign Up Fields */}
+            {isSignUp && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="text"
+                  placeholder="Phone Number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </>
+            )}
+  
+            {/* Email and Password Fields */}
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+  
+            {/* Sign Up or Login Button */}
+            {isSignUp ? (
               <button
-                className="btn btn-block mb-2 bg-blue-600 text-white flex items-center justify-center"
-                onClick={handleGoogleLogin}
+                className="btn btn-primary w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition-all"
+                onClick={handleSignUp}
               >
-                <FaGoogle className="mr-2" /> Sign Up or Login with Google
+                Sign Up
               </button>
-
-              {isSignUp && (
-                <>
-                  <input
-                    type="text"
-                    placeholder="Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-2 border  focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Phone Number"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-4 py-2 border  focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                  />
-                </>
-              )}
-
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border  focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border  focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-              />
-
+            ) : (
+              <button
+                className="btn btn-primary w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition-all"
+                onClick={handleEmailLogin}
+              >
+                Login
+              </button>
+            )}
+  
+            {/* Toggle Between Sign Up and Login */}
+            <div className="mt-4 text-center text-sm text-gray-600">
               {isSignUp ? (
-                <button
-                  className="btn btn-primary w-full"
-                  onClick={handleSignUp}
-                >
-                  Sign Up
-                </button>
+                <p>
+                  Already have an account?{' '}
+                  <span
+                    className="text-blue-500 cursor-pointer hover:underline"
+                    onClick={() => setIsSignUp(false)}
+                  >
+                    Login here
+                  </span>
+                </p>
               ) : (
-                <button
-                  className="btn btn-primary w-full"
-                  onClick={handleEmailLogin}
-                >
-                  Login
-                </button>
+                <p>
+                  Don't have an account?{' '}
+                  <span
+                    className="text-blue-500 cursor-pointer hover:underline"
+                    onClick={() => setIsSignUp(true)}
+                  >
+                    Sign Up here
+                  </span>
+                </p>
               )}
-
-              <div className="mt-4 text-center">
-                {isSignUp ? (
-                  <p>
-                    Already have an account?{' '}
-                    <span
-                      className="text-blue-500 cursor-pointer"
-                      onClick={() => setIsSignUp(false)}
-                    >
-                      Login here
-                    </span>
-                  </p>
-                ) : (
-                  <p>
-                    Don't have an account?{' '}
-                    <span
-                      className="text-blue-500 cursor-pointer"
-                      onClick={() => setIsSignUp(true)}
-                    >
-                      Sign Up here
-                    </span>
-                  </p>
-                )}
-              </div>
-
-              {error && <div className="mt-4 text-red-500">{error}</div>}
             </div>
-          </div>
-        </dialog>
-      )}
-
-      {showToast && (
-        <div className="toast toast-center toast-middle">
-          <div className="alert alert-success">
-            <span>{toastMessage}</span>
+  
+            {/* Error Message */}
+            {error && (
+              <div className="mt-4 text-red-500 text-sm text-center">
+                {error}
+              </div>
+            )}
           </div>
         </div>
-      )}
-    </>
+      </dialog>
+    )}
+  
+    {/* Toast Notification */}
+    {showToast && (
+      <div className="toast toast-center toast-middle animate-fade-in">
+        <div className="alert alert-success bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
+          <span>{toastMessage}</span>
+        </div>
+      </div>
+    )}
+  </>
   );
 };
 

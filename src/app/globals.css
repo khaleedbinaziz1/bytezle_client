@@ -139,12 +139,6 @@ body {
   justify-content: center;
   align-items: center;
 }
-.navbar{
-  margin-bottom: 0px;
- 
-  position: relative;
-
-}
 
 /* Add this to your global styles or the relevant CSS file */
 .truncate-multiline {
@@ -155,3 +149,19 @@ body {
   text-overflow: ellipsis;
 }
 
+.sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #F5F5F5;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #FFD200;
+  border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #F9D029;
+}
