@@ -46,7 +46,7 @@ const TopBrands = () => {
             <div className="w-24 h-1 bg-gradient-to-r from-yellow-500 to-orange-500 mx-auto my-3"></div>
             
             {/* Brands Grid */}
-            <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-8 mt-12">
+            <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-5 gap-8 mt-12">
                 {brands.map((brand, index) => (
                     <div
                         key={index}
