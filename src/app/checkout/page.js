@@ -240,7 +240,7 @@ const Checkout = ({ user }) => {
   const createOrder = async (money_phone_number) => {
     const selectedZone = zones.find(zone => zone.name === shippingInfo.zone);
     const deliveryCharge = selectedZone.delivery_charge;
-  
+
     const order = {
       order_id: orderId,
       deliveryCharge: isCouponValid ? 0 : deliveryCharge,
@@ -250,8 +250,8 @@ const Checkout = ({ user }) => {
       phone_no: shippingInfo.phoneNumber,
       money_phone_number: money_phone_number, // Save phone number as money_phone_number
       email: shippingInfo.email,
-      totalPartialPrice:totalPartialPrice,
-      dueAmount:dueAmount,
+      totalPartialPrice: totalPartialPrice,
+      dueAmount: dueAmount,
 
       products: cartDetails.items.map(item => ({
         product_id: item._id,
@@ -264,14 +264,14 @@ const Checkout = ({ user }) => {
       status: "Pending",
       timestamp: new Date().toISOString(),
     };
-  
+
     try {
       const res = await fetch('https://bytezle-server.vercel.app/addorders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(order)
       });
-  
+
       if (res.ok) {
         // Optionally, handle the response, e.g., order confirmation, etc.
         await updateTrackRecord(orderId);
@@ -282,8 +282,8 @@ const Checkout = ({ user }) => {
       console.error('Error:', error);
     }
   };
-  
-  
+
+
 
   const fetchUserIdByEmail = async (email) => {
     try {
@@ -331,18 +331,18 @@ const Checkout = ({ user }) => {
 
   const handleConfirmPayment = async (phoneNumber) => {
     // Handle the payment confirmation (e.g., log or send to backend)
-  
+
     console.log('Phone Number:', phoneNumber);
-  
+
     // // After payment, create the order
     // await createOrder(phoneNumber);
-  
+
     // Record coupon usage if valid
     if (isCouponValid) {
       await recordCouponUsage(userEmail, couponCode);
     }
   };
-  
+
 
   const placeOrder = async () => {
     if (isPlacingOrder) return;
@@ -378,7 +378,7 @@ const Checkout = ({ user }) => {
       // localStorage.removeItem('cartDetails');
       // setCartDetails({ items: [], total: 0 });
 
-     
+
     } catch (error) {
       console.error("Error placing order:", error);
     } finally {
@@ -436,21 +436,27 @@ const Checkout = ({ user }) => {
       const productData = productDetails[item._id];
       return total + (productData ? parseInt(productData.partial) * item.quantity : 0);
     }, 0);
-  
+
     setTotalPartialPrice(totalPartial);
   }, [cartDetails.items, productDetails]);
-  
+
   // Calculate total cost including delivery charge
   const totalCost = Math.round(
     parseInt(cartDetails.total) +
     (isCouponValid ? 0 : (zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge || 0))
   );
-  
+
   const dueAmount = paymentOption === 'partial' ? totalCost - totalPartialPrice : 0;
-  
+
 
   return (
     <div className="checkout-container max-w-4xl mx-auto p-6 border border-gray-200 shadow-lg" style={{ marginTop: '150px' }}>
+      <div className="bg-gradient-to-r from-yellow-500 to-pink-500 text-white p-6 rounded-lg shadow-lg text-center mb-3">
+        <h2 className="text-2xl font-semibold">You're Almost There!</h2>
+        <p className="mt-2 text-lg">Complete your order and get ready to enjoy your purchase!</p>
+
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
           <div className="bg-gray-50 p-2 rounded-lg">
@@ -461,7 +467,7 @@ const Checkout = ({ user }) => {
                 <input
                   type="text"
                   id="name"
-                  
+
                   className="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
                   placeholder={'Enter your name'}
                   value={shippingInfo.name}
@@ -505,19 +511,23 @@ const Checkout = ({ user }) => {
                 />
               </div>
               <div>
-                <label htmlFor="zone" className="block text-sm font-medium text-gray-700">Area:</label>
-                <select
-                  id="zone"
-                  className="form-select mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-                  value={shippingInfo.zone}
-                  onChange={(e) => setShippingInfo({ ...shippingInfo, zone: e.target.value })}
-                  required
-                >
-                  <option value="">Select Area</option>
+                <label htmlFor="zone" className="block text-sm font-medium text-gray-700">Zone:</label>
+                <div className="mt-1">
                   {zones.map((zone, index) => (
-                    <option key={index} value={zone.name}>{zone.name}</option>
+                    <div key={index} className="flex items-center">
+                      <input
+                        type="radio"
+                        id={`zone-${index}`}
+                        name="zone"
+                        value={zone.name}
+                        checked={shippingInfo.zone === zone.name}
+                        onChange={(e) => setShippingInfo({ ...shippingInfo, zone: e.target.value })}
+                        className="mr-2"
+                      />
+                      <label htmlFor={`zone-${index}`} className="text-sm text-gray-700">{zone.name}</label>
+                    </div>
                   ))}
-                </select>
+                </div>
               </div>
 
 
@@ -533,7 +543,7 @@ const Checkout = ({ user }) => {
                 placeholder="Enter coupon code"
                 value={couponCode}
                 onChange={handleCouponChange}
-        
+
               />
               <button
                 onClick={validateCoupon}
@@ -553,114 +563,115 @@ const Checkout = ({ user }) => {
         </div>
 
         <div>
-    <h3 className="text-xl font-semibold mb-4 p-2">Order Summary</h3>
-    {cartDetails.items.map((item, index) => {
-      const productData = productDetails[item._id]; // Access product details by _id
+          <h3 className="text-xl font-semibold mb-4 p-2">Order Summary</h3>
+          {cartDetails.items.map((item, index) => {
+            const productData = productDetails[item._id]; // Access product details by _id
 
-      return (
-        <div key={index} className="flex items-center mb-4">
-          <div className="w-16 h-16 relative">
-            <Image src={item.images[0]} alt={item.name}  width={200} height={200} />
-          </div>
-          <div className="ml-4">
-            <p className="text-lg font-semibold">{item.name}</p>
-       
-            <p className="text-gray-500">৳{item.price}</p>
-            <p className="text-gray-500">Quantity: {item.quantity}</p>
+            return (
+              <div key={index} className="flex items-center mb-4">
+                <div className="w-16 h-16 relative">
+                  <Image src={item.images[0]} alt={item.name} width={200} height={200} />
+                </div>
+                <div className="ml-4">
+                  <p className="text-lg font-semibold">{item.name}</p>
 
-       
+                  <p className="text-gray-500">৳{item.price}</p>
+                  <p className="text-gray-500">Quantity: {item.quantity}</p>
+
+
+                </div>
+              </div>
+            );
+          })}
+
+          <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
+            <div className="flex justify-between mb-4">
+              <span className="text-lg font-semibold">Total Cost of All Products:</span>
+              <span className="text-lg font-semibold">৳{parseInt(cartDetails.total)}</span>
+            </div>
+
+            <div className="flex justify-between mb-4">
+              <span className="text-lg font-semibold">Delivery Charge:</span>
+              <span className="text-lg font-semibold">
+                ৳{zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge}
+              </span>
+            </div>
+
+            <div className="flex justify-between mb-4">
+              <span className="text-lg font-semibold">Total:</span>
+              <span className="text-lg font-semibold">
+                ৳{totalCost}
+              </span>
+            </div>
+
+            {/* Payment Option Selection */}
+            <div className="mb-4">
+              <label className="text-lg font-semibold">Payment Option:</label>
+              <div>
+                <label className="mr-4">
+                  <input
+                    type="radio"
+                    name="paymentOption"
+                    value="full"
+                    checked={paymentOption === 'full'}
+                    onChange={() => setPaymentOption('full')}
+                    required
+                  />
+                  Full Payment
+                </label>
+                <label>
+                  <input
+                    type="radio"
+
+                    name="paymentOption"
+                    value="partial"
+                    checked={paymentOption === 'partial'}
+                    onChange={() => setPaymentOption('partial')}
+                  />
+                  Payment to confirm order
+                </label>
+              </div>
+            </div>
+
+            {/* Show partial payment amount and due amount if partial payment is selected */}
+            {paymentOption === 'partial' && (
+              <>
+                <div className="flex justify-between mb-4">
+                  <span className="text-lg font-semibold">Advance Amount:</span>
+                  <span className="text-lg font-semibold">৳{totalPartialPrice}</span>
+                </div>
+
+                <div className="flex justify-between mb-4">
+                  <span className="text-lg font-semibold">Due Amount:</span>
+                  <span className="text-lg font-semibold">৳{dueAmount}</span>
+                </div>
+              </>
+            )}
+
+            <button
+              onClick={openModal}
+              className="w-full bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 text-white py-3 rounded-lg shadow-lg hover:from-blue-600 hover:to-blue-700 hover:scale-105 transition-all duration-300 focus:outline-none"
+
+              disabled={isPlacingOrder}
+            >
+              {isPlacingOrder ? 'Placing Order...' : 'Place Order'}
+            </button>
           </div>
+
+          <PaymentModal
+            isOpen={isPaymentModalOpen}
+            onClose={() => setIsPaymentModalOpen(false)}
+            totalCost={totalCost}
+            dueAmount={dueAmount}
+            paymentOption={paymentOption}
+            onConfirmPayment={handleConfirmPayment}
+            totalPartialPrice={totalPartialPrice}
+            placeOrder={placeOrder}
+            createOrder={createOrder}  // Pass createOrder as a prop
+          />
+
+
         </div>
-      );
-    })}
-
-    <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
-      <div className="flex justify-between mb-4">
-        <span className="text-lg font-semibold">Total Cost of All Products:</span>
-        <span className="text-lg font-semibold">৳{parseInt(cartDetails.total)}</span>
-      </div>
-
-      <div className="flex justify-between mb-4">
-        <span className="text-lg font-semibold">Delivery Charge:</span>
-        <span className="text-lg font-semibold">
-          ৳{zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge}
-        </span>
-      </div>
-
-      <div className="flex justify-between mb-4">
-        <span className="text-lg font-semibold">Total:</span>
-        <span className="text-lg font-semibold">
-          ৳{totalCost}
-        </span>
-      </div>
-
-      {/* Payment Option Selection */}
-      <div className="mb-4">
-        <label className="text-lg font-semibold">Payment Option:</label>
-        <div>
-          <label className="mr-4">
-            <input
-              type="radio"
-              name="paymentOption"
-              value="full"
-              checked={paymentOption === 'full'}
-              onChange={() => setPaymentOption('full')}
-              required
-            />
-            Full Payment
-          </label>
-          <label>
-            <input
-              type="radio"
-              
-              name="paymentOption"
-              value="partial"
-              checked={paymentOption === 'partial'}
-              onChange={() => setPaymentOption('partial')}
-            />
-            Partial Payment
-          </label>
-        </div>
-      </div>
-
-      {/* Show partial payment amount and due amount if partial payment is selected */}
-      {paymentOption === 'partial' && (
-        <>
-          <div className="flex justify-between mb-4">
-            <span className="text-lg font-semibold">Advance Amount:</span>
-            <span className="text-lg font-semibold">৳{totalPartialPrice}</span>
-          </div>
-
-          <div className="flex justify-between mb-4">
-            <span className="text-lg font-semibold">Due Amount:</span>
-            <span className="text-lg font-semibold">৳{dueAmount}</span>
-          </div>
-        </>
-      )}
-
-      <button
-        onClick={openModal}
-        className="w-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 text-white py-3 rounded-lg hover:from-yellow-600 hover:to-yellow-700 focus:outline-none"
-        disabled={isPlacingOrder}
-      >
-        {isPlacingOrder ? 'Placing Order...' : 'Place Order'}
-      </button>
-    </div>
- 
-    <PaymentModal
-  isOpen={isPaymentModalOpen}
-  onClose={() => setIsPaymentModalOpen(false)}
-  totalCost={totalCost}
-  dueAmount={dueAmount}
-  paymentOption={paymentOption}
-  onConfirmPayment={handleConfirmPayment}
-  totalPartialPrice={totalPartialPrice}
-  placeOrder={placeOrder}
-  createOrder={createOrder}  // Pass createOrder as a prop
-/>
-
-
-  </div>
       </div>
     </div>
   );

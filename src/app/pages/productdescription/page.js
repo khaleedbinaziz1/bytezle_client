@@ -228,11 +228,7 @@ const ProductDescription = ({ id }) => {
               <h1 className="text-xl text-green-600 font-bold">Buy in Wholesale Quantity</h1>
             </label>
           </div>
-          {isWholesale && (
-            <p className="text-green-600">
-              You save tk.{calculation.toFixed(0)} by buying wholesale!
-            </p>
-          )}
+      
         </div>
       </div>
   
@@ -274,11 +270,7 @@ const ProductDescription = ({ id }) => {
             <h1 className="text-xl text-green-600 font-bold">Buy in Wholesale Quantity</h1>
           </label>
         </div>
-        {isWholesale && (
-          <p className="text-green-600">
-            You save tk.{calculation.toFixed(0)} by buying wholesale!
-          </p>
-        )}
+    
       </div>
   
       {/* Additional Info Section */}
