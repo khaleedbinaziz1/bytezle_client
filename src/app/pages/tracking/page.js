@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import React, { useEffect, useState } from "react";
 import { auth } from "../login/firebase/firebase";
 import withAuth from "@/app/checkout/withAuth";
@@ -93,19 +93,22 @@ const Tracking = () => {
 
   const renderOrderStatusTimeline = (status) => {
     const steps = [
-      { label: "Pending", icon: <FaHourglass />, color: "bg-yellow-500" },
-      { label: "On the way", icon: <FaTruck />, color: "bg-blue-500" },
+      { label: "Payment Processing", icon: <FaExclamationCircle />, color: "bg-yellow-500" },
+      { label: "Order Confirmed", icon: <FaCheckCircle />, color: "bg-blue-500" },
+      { label: "On the way", icon: <FaTruck />, color: "bg-orange-500" },
       { label: "Delivered", icon: <FaCheckCircle />, color: "bg-green-500" },
     ];
 
     const getStatusIndex = (status) => {
       switch (status) {
-        case "Pending":
+        case "Payment Processing":
           return 0;
-        case "On the way":
+        case "Order Confirmed":
           return 1;
-        case "Delivered":
+        case "OnTheWay":
           return 2;
+        case "Delivered":
+          return 3;
         default:
           return -1;
       }
@@ -114,13 +117,13 @@ const Tracking = () => {
     const currentIndex = getStatusIndex(status);
 
     return (
-      <div className="relative w-full h-16" >
+      <div className="relative w-full h-16">
         <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 rounded-full transform -translate-y-1/2"></div>
         {steps.map((step, index) => (
           <div
             key={index}
-            className={`absolute  top-1/2 transform -translate-y-1/2 ${
-              index === 0 ? "left-0" : index === 1 ? "left-1/2 -translate-x-1/2" : "right-0"
+            className={`absolute top-1/2 transform -translate-y-1/2 ${
+              index === 0 ? "left-0" : index === 1 ? "left-1/3 -translate-x-1/3" : index === 2 ? "left-2/3 -translate-x-2/3" : "right-0"
             }`}
           >
             <div
@@ -140,8 +143,7 @@ const Tracking = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen "style={{marginTop: '150px'}}>
-
+    <div className="bg-gray-100 min-h-screen mt-20">
       <div className="max-w-6xl mx-auto p-8">
         <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">Order Tracking</h1>
         {loading ? (
@@ -204,7 +206,6 @@ const Tracking = () => {
           </h3>
         )}
       </div>
-    
     </div>
   );
 };

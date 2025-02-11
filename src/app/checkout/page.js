@@ -261,7 +261,7 @@ const Checkout = ({ user }) => {
       })),
       product_total: Math.round(cartDetails.total),
       total_price: Math.round(parseInt(cartDetails.total) + (isCouponValid ? 0 : deliveryCharge)),
-      status: "Pending",
+      status: "Payment Processing",
       timestamp: new Date().toISOString(),
     };
 
@@ -290,14 +290,41 @@ const Checkout = ({ user }) => {
       const res = await fetch(`https://bytezle-server.vercel.app/users/email/${email}`);
       if (res.ok) {
         const user = await res.json();
-        return user._id;
+        return user._id; // Return user ID if found
       } else {
-        console.error('Failed to fetch user ID');
-        return null;
+        // If email does not exist, create a new user with the addusers API
+        console.log('Email does not exist, creating new user');
+        await addUser(email); // Create a new user with the provided email
+        return null; // Return null indicating new user creation
       }
     } catch (error) {
       console.error('Error fetching user ID:', error);
       return null;
+    }
+  };
+
+  const addUser = async (email) => {
+    try {
+      const response = await fetch('https://bytezle-server.vercel.app/addusers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          uid: '', // Leave empty or set as required
+          name: '', // Leave empty as per your request
+          email,
+          phone: '' // Leave empty as per your request
+        }),
+      });
+  
+      if (response.ok) {
+        console.log('User created successfully');
+      } else {
+        console.error('Failed to create user');
+      }
+    } catch (error) {
+      console.error('Error creating user:', error);
     }
   };
 
@@ -344,47 +371,61 @@ const Checkout = ({ user }) => {
   };
 
 
-  const placeOrder = async () => {
-    if (isPlacingOrder) return;
-    setIsPlacingOrder(true);
 
-    const areFieldsValid = () => {
-      return (
-        shippingInfo.name &&
-        shippingInfo.location &&
-        shippingInfo.zone &&
-        shippingInfo.phoneNumber &&
-        shippingInfo.email
-
-      );
-    };
-
-    if (!areFieldsValid()) {
-      alert("Please fill out all required fields before placing the order.");
-      setIsPlacingOrder(false);
-      return;
-
-
-    }
-
-    try {
-      await createOrder();
-
-      if (isCouponValid) {
-        await recordCouponUsage(userEmail, couponCode);
+    const placeOrder = async () => {
+      if (isPlacingOrder) return;
+      setIsPlacingOrder(true);
+    
+      const areFieldsValid = () => {
+        return (
+          shippingInfo.name &&
+          shippingInfo.location &&
+          shippingInfo.zone &&
+          shippingInfo.phoneNumber &&
+          shippingInfo.email
+        );
+      };
+    
+      if (!areFieldsValid()) {
+        alert("Please fill out all required fields before placing the order.");
+        setIsPlacingOrder(false);
+        return;
       }
-
-      // clearCart();
-      // localStorage.removeItem('cartDetails');
-      // setCartDetails({ items: [], total: 0 });
-
-
-    } catch (error) {
-      console.error("Error placing order:", error);
-    } finally {
-      setIsPlacingOrder(false);
-    }
-  };
+    
+      try {
+        const userId = await fetchUserIdByEmail(userEmail);
+        if (!userId) {
+          // If no user is found, we are waiting for the user creation process to complete.
+          // Create a user with the email and proceed after that
+          await addUser(userEmail); // Create user if not found
+          // Once user is created, proceed with placing the order
+          await createOrder(); // Pass user info and proceed with order creation
+        } else {
+          // Proceed directly to order creation if the user exists
+          await createOrder(); // Proceed with order creation
+        }
+    
+        if (isCouponValid) {
+          await recordCouponUsage(userEmail, couponCode);
+        }
+    
+        clearCart();  // Clear cart in service
+    
+        // Remove cart from localStorage as well
+        localStorage.removeItem('cartDetails');
+        
+        // Reset cart state to ensure UI updates immediately
+        setCartDetails({ items: [], total: 0 });
+        
+        // Redirect to completion page with a reload
+        window.location.href = '/pages/completion';
+      } catch (error) {
+        console.error("Error placing order:", error);
+      } finally {
+        setIsPlacingOrder(false);
+      }
+    };
+    
 
   const handleCouponChange = (event) => {
     setCouponCode(event.target.value);
@@ -605,7 +646,7 @@ const Checkout = ({ user }) => {
             </div>
 
             {/* Payment Option Selection */}
-            <div className="mb-4">
+            <div className="mb-4 mt-10">
               <label className="text-lg font-semibold">Payment Option:</label>
               <div>
                 <label className="mr-4">
