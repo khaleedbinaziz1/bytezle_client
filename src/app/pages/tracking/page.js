@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
 import { auth } from "../login/firebase/firebase";
 import withAuth from "@/app/checkout/withAuth";
@@ -83,7 +83,9 @@ const Tracking = () => {
           }
         })
       );
-      setOrders(orders.filter((order) => order !== null));
+      // Sort orders by timestamp (latest first)
+      const sortedOrders = orders.filter((order) => order !== null).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      setOrders(sortedOrders);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -151,7 +153,7 @@ const Tracking = () => {
         ) : userEmail ? (
           orders.length > 0 ? (
             <div className="space-y-8">
-              {orders.reverse().map((order, index) => (
+              {orders.map((order, index) => (
                 <div
                   key={index}
                   className="p-6 rounded-lg shadow-lg bg-white hover:bg-gray-50 transition duration-300"
@@ -189,6 +191,17 @@ const Tracking = () => {
                           <div>
                             <p className="text-sm font-medium">{product.product_name}</p>
                             <p className="text-sm">৳{product.price} x {product.quantity}</p>
+
+                            {/* Display Color */}
+                            {product.color && (
+                              <div className="flex items-center space-x-2 mt-1">
+                                <span className="text-xs text-gray-600">Color:</span>
+                                <div
+                                  className="w-5 h-5 rounded-full"
+                                  style={{ backgroundColor: product.color }}
+                                ></div>
+                              </div>
+                            )}
                           </div>
                         </li>
                       ))}

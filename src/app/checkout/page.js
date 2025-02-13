@@ -257,7 +257,8 @@ const Checkout = ({ user }) => {
         product_id: item._id,
         product_name: item.name,
         price: item.price,
-        quantity: item.quantity
+        quantity: item.quantity,
+        color: item.color, // Store selected color during order creation
       })),
       product_total: Math.round(cartDetails.total),
       total_price: Math.round(parseInt(cartDetails.total) + (isCouponValid ? 0 : deliveryCharge)),
@@ -302,7 +303,7 @@ const Checkout = ({ user }) => {
       return null;
     }
   };
-
+  
   const addUser = async (email) => {
     try {
       const response = await fetch('https://bytezle-server.vercel.app/addusers', {
@@ -327,7 +328,7 @@ const Checkout = ({ user }) => {
       console.error('Error creating user:', error);
     }
   };
-
+  
   const updateTrackRecord = async (orderId) => {
     try {
       const userId = await fetchUserIdByEmail(userEmail);
@@ -335,26 +336,30 @@ const Checkout = ({ user }) => {
         toast.error('Failed to update track record: User not found');
         return;
       }
-
+  
       const res = await fetch(`https://bytezle-server.vercel.app/users/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId })
       });
-
+  
       const data = await res.json();
-
+  
       if (res.ok) {
-        // Track record updated successfully
+        console.log('Track record updated successfully');
+        return true; // Return true if track record is updated
       } else {
         console.error('Failed to update track record');
         toast.error('Failed to update track record');
+        return false; // Return false if track record update fails
       }
     } catch (error) {
       console.error('Error updating track record:', error);
       toast.error('An error occurred while updating the track record');
+      return false;
     }
   };
+  
 
   const handleConfirmPayment = async (phoneNumber) => {
     // Handle the payment confirmation (e.g., log or send to backend)
@@ -372,61 +377,71 @@ const Checkout = ({ user }) => {
 
 
 
-    const placeOrder = async () => {
-      if (isPlacingOrder) return;
-      setIsPlacingOrder(true);
-    
-      const areFieldsValid = () => {
-        return (
-          shippingInfo.name &&
-          shippingInfo.location &&
-          shippingInfo.zone &&
-          shippingInfo.phoneNumber &&
-          shippingInfo.email
-        );
-      };
-    
-      if (!areFieldsValid()) {
-        alert("Please fill out all required fields before placing the order.");
-        setIsPlacingOrder(false);
-        return;
-      }
-    
-      try {
-        const userId = await fetchUserIdByEmail(userEmail);
-        if (!userId) {
-          // If no user is found, we are waiting for the user creation process to complete.
-          // Create a user with the email and proceed after that
-          await addUser(userEmail); // Create user if not found
-          // Once user is created, proceed with placing the order
-          await createOrder(); // Pass user info and proceed with order creation
-        } else {
-          // Proceed directly to order creation if the user exists
-          await createOrder(); // Proceed with order creation
-        }
-    
-        if (isCouponValid) {
-          await recordCouponUsage(userEmail, couponCode);
-        }
-    
-        clearCart();  // Clear cart in service
-    
-        // Remove cart from localStorage as well
-        localStorage.removeItem('cartDetails');
-        
-        // Reset cart state to ensure UI updates immediately
-        setCartDetails({ items: [], total: 0 });
-        
-        // Redirect to completion page with a reload
-        window.location.href = '/pages/completion';
-      } catch (error) {
-        console.error("Error placing order:", error);
-      } finally {
-        setIsPlacingOrder(false);
-      }
+  const placeOrder = async () => {
+    if (isPlacingOrder) return;
+    setIsPlacingOrder(true);
+  
+    const areFieldsValid = () => {
+      return (
+        shippingInfo.name &&
+        shippingInfo.location &&
+        shippingInfo.zone &&
+        shippingInfo.phoneNumber &&
+        shippingInfo.email
+      );
     };
-    
-
+  
+    if (!areFieldsValid()) {
+      alert("Please fill out all required fields before placing the order.");
+      setIsPlacingOrder(false);
+      return;
+    }
+  
+    try {
+      const userId = await fetchUserIdByEmail(userEmail);
+  
+      if (!userId) {
+        // If no user is found, we are waiting for the user creation process to complete.
+        // Create a user with the email and proceed after that
+        await addUser(userEmail); // Create user if not found
+        // Wait for track record to be updated before proceeding
+        const trackRecordUpdated = await updateTrackRecord(orderId);
+        if (!trackRecordUpdated) {
+          setIsPlacingOrder(false);
+          return; // Stop if track record update fails
+        }
+      } else {
+        // Proceed directly to order creation if the user exists
+        const trackRecordUpdated = await updateTrackRecord(orderId);
+        if (!trackRecordUpdated) {
+          setIsPlacingOrder(false);
+          return; // Stop if track record update fails
+        }
+      }
+  
+      await createOrder(); // Proceed with order creation after track record update
+  
+      if (isCouponValid) {
+        await recordCouponUsage(userEmail, couponCode);
+      }
+  
+      clearCart();  // Clear cart in service
+  
+      // Remove cart from localStorage as well
+      localStorage.removeItem('cartDetails');
+  
+      // Reset cart state to ensure UI updates immediately
+      setCartDetails({ items: [], total: 0 });
+  
+      // Redirect to completion page with a reload
+      window.location.href = '/pages/completion';
+    } catch (error) {
+      console.error("Error placing order:", error);
+    } finally {
+      setIsPlacingOrder(false);
+    }
+  };
+  
   const handleCouponChange = (event) => {
     setCouponCode(event.target.value);
     setIsCouponChecked(false);
@@ -529,12 +544,12 @@ const Checkout = ({ user }) => {
                 />
               </div>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Phone Number:</label>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Enter Email:</label>
                 <input
                   type="email"
                   id="email"
                   className="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-                  placeholder={'Enter your email'}
+                  placeholder={userEmail}
                   value={shippingInfo.email}
                   onChange={(e) => setShippingInfo({ ...shippingInfo, email: e.target.value })}
                   required
@@ -618,6 +633,15 @@ const Checkout = ({ user }) => {
 
                   <p className="text-gray-500">৳{item.price}</p>
                   <p className="text-gray-500">Quantity: {item.quantity}</p>
+
+                  {/* Display color swatch */}
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="text-sm text-gray-500">Color: </span>
+                    <div
+                      className="w-6 h-6 rounded border border-gray-300 shadow-md"
+                      style={{ backgroundColor: item.color }}
+                    ></div>
+                  </div>
 
 
                 </div>

@@ -182,7 +182,7 @@ const FreshDealsContent = () => {
   const endIndex = startIndex + itemsPerPage;
 
   return (
-    <div className="mx-auto p-1 pt-1 mt-0.25 text-center rounded bg-white border-gray-500">
+    <div className="mx-auto p-1 pt-1 mt-0.25 text-center rounded bg-white border-gray-500 min-h-screen">
         <div className="text-left flex justify-between items-center"></div>
      
       
