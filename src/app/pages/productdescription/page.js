@@ -213,7 +213,7 @@ const ProductDescription = ({ id }) => {
             </button>
           </div>
 
-          <div>
+          {/* <div>
             <label className="flex items-center space-x-2">
               <input
                 type="checkbox"
@@ -222,7 +222,7 @@ const ProductDescription = ({ id }) => {
               />
               <h1 className="text-xl text-green-600 font-bold">Buy in Wholesale Quantity</h1>
             </label>
-          </div>
+          </div> */}
         </div>
 
         {/* Additional Info Section */}

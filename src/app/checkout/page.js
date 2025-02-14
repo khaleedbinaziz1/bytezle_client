@@ -32,6 +32,10 @@ const Checkout = ({ user }) => {
   const router = useRouter();
 
 
+  const token = '7628320322:AAHebFR7sKx5e8wtbF2fuWEMQlXzDBB1LR0';  // Replace with your bot's token
+  const chatId = '6948540051';  // Replace with your chat ID or your bot's chat ID
+
+
 
   const [paymentOption, setPaymentOption] = useState('full'); // To track payment option
   const [totalPartialPrice, setTotalPartialPrice] = useState(0);
@@ -276,6 +280,28 @@ const Checkout = ({ user }) => {
       if (res.ok) {
         // Optionally, handle the response, e.g., order confirmation, etc.
         await updateTrackRecord(orderId);
+        const message = `
+        New order placed! 
+        Order ID: ${orderId}
+        Customer Name: ${shippingInfo.name}
+        Shipping Address: ${shippingInfo.location}
+        Phone Number: ${shippingInfo.phoneNumber}
+        Email: ${shippingInfo.email}
+        Shipping Zone: ${shippingInfo.zone}
+        
+        Order Summary:
+        ${cartDetails.items.map(item => `- ${item.quantity}x ${item.name} (৳${item.price} each)`).join('\n')}
+        
+        Total Cost: ৳${totalCost}
+        Delivery Charge: ৳${zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge || 'N/A'}
+        
+        Payment Option: ${paymentOption === 'full' ? 'Full Payment' : 'Partial Payment (Due: ৳' + dueAmount + ')'}
+      `;
+      
+      await sendMessage(message);  // Send the message to the bot
+      
+      
+
       } else {
         console.error('Failed to create order');
       }
@@ -303,7 +329,7 @@ const Checkout = ({ user }) => {
       return null;
     }
   };
-  
+
   const addUser = async (email) => {
     try {
       const response = await fetch('https://bytezle-server.vercel.app/addusers', {
@@ -318,7 +344,7 @@ const Checkout = ({ user }) => {
           phone: '' // Leave empty as per your request
         }),
       });
-  
+
       if (response.ok) {
         console.log('User created successfully');
       } else {
@@ -328,7 +354,7 @@ const Checkout = ({ user }) => {
       console.error('Error creating user:', error);
     }
   };
-  
+
   const updateTrackRecord = async (orderId) => {
     try {
       const userId = await fetchUserIdByEmail(userEmail);
@@ -336,15 +362,15 @@ const Checkout = ({ user }) => {
         toast.error('Failed to update track record: User not found');
         return;
       }
-  
+
       const res = await fetch(`https://bytezle-server.vercel.app/users/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId })
       });
-  
+
       const data = await res.json();
-  
+
       if (res.ok) {
         console.log('Track record updated successfully');
         return true; // Return true if track record is updated
@@ -359,7 +385,7 @@ const Checkout = ({ user }) => {
       return false;
     }
   };
-  
+
 
   const handleConfirmPayment = async (phoneNumber) => {
     // Handle the payment confirmation (e.g., log or send to backend)
@@ -376,6 +402,11 @@ const Checkout = ({ user }) => {
   };
 
 
+  const sendWhatsAppMessage = (phoneNumber, message) => {
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappLink = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+    window.open(whatsappLink, '_blank');
+  };
 
   const placeOrder = async () => {
     if (isPlacingOrder) return;
@@ -401,39 +432,30 @@ const Checkout = ({ user }) => {
       const userId = await fetchUserIdByEmail(userEmail);
   
       if (!userId) {
-        // If no user is found, we are waiting for the user creation process to complete.
-        // Create a user with the email and proceed after that
-        await addUser(userEmail); // Create user if not found
-        // Wait for track record to be updated before proceeding
+        await addUser(userEmail);
         const trackRecordUpdated = await updateTrackRecord(orderId);
         if (!trackRecordUpdated) {
           setIsPlacingOrder(false);
-          return; // Stop if track record update fails
+          return;
         }
       } else {
-        // Proceed directly to order creation if the user exists
         const trackRecordUpdated = await updateTrackRecord(orderId);
         if (!trackRecordUpdated) {
           setIsPlacingOrder(false);
-          return; // Stop if track record update fails
+          return;
         }
       }
   
-      await createOrder(); // Proceed with order creation after track record update
+      await createOrder(); // Proceed with order creation
   
-      if (isCouponValid) {
-        await recordCouponUsage(userEmail, couponCode);
-      }
+      // Send a message to the Telegram bot after the order is created
+      const message = `New order placed! Order ID: ${orderId}, Name: ${shippingInfo.name}, Total: ৳${totalCost}`;
+      await sendMessage(message);  // Send the message to the bot
   
-      clearCart();  // Clear cart in service
-  
-      // Remove cart from localStorage as well
+      clearCart();
       localStorage.removeItem('cartDetails');
-  
-      // Reset cart state to ensure UI updates immediately
       setCartDetails({ items: [], total: 0 });
   
-      // Redirect to completion page with a reload
       window.location.href = '/pages/completion';
     } catch (error) {
       console.error("Error placing order:", error);
@@ -442,6 +464,8 @@ const Checkout = ({ user }) => {
     }
   };
   
+  
+
   const handleCouponChange = (event) => {
     setCouponCode(event.target.value);
     setIsCouponChecked(false);
@@ -504,6 +528,33 @@ const Checkout = ({ user }) => {
 
   const dueAmount = paymentOption === 'partial' ? totalCost - totalPartialPrice : 0;
 
+  // Send a message to the bot
+  // Send a message to the Telegram bot
+  const sendMessage = async (message) => {
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+  
+    const formData = new FormData();
+    formData.append('chat_id', chatId);  // Your chat ID
+    formData.append('text', message);    // The message content
+  
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        body: formData,
+      });
+  
+      const data = await response.json();
+      console.log('Message sent:', data);  // Log the response for debugging
+  
+      if (!response.ok) {
+        console.error('Failed to send message:', data);  // Log any errors from the response
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);  // Log the error if the fetch fails
+    }
+  };
+  
+  
 
   return (
     <div className="checkout-container max-w-4xl mx-auto p-6 border border-gray-200 shadow-lg" style={{ marginTop: '150px' }}>
@@ -589,7 +640,7 @@ const Checkout = ({ user }) => {
 
             </form>
           </div>
-
+          {/* 
           <div className="bg-gray-50 p-4 rounded-lg mt-6">
             <h3 className="text-xl font-semibold mb-4">Coupon Code</h3>
             <div className="flex">
@@ -615,7 +666,7 @@ const Checkout = ({ user }) => {
                 <p className="text-red-500 mt-2">Invalid coupon code</p>
               )
             )}
-          </div>
+          </div> */}
         </div>
 
         <div>
