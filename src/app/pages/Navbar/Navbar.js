@@ -155,7 +155,7 @@ const Navbar = () => {
       </div>
     </>
   
-    <div className={`navbar bg-base-100 flex flex-wrap md:flex-nowrap justify-between items-center shadow-md relative top-[-0px] ${isMobileView ? 'pt-0 pb-0 mt-0 mb-0 top-[-25px]' : 'pt-0 pb-0 mt-0 mb-0'}`}>
+    <div className={`navbar bg-base-100 flex flex-wrap md:flex-nowrap justify-between items-center shadow-md relative top-[-0px] ${isMobileView ? 'pt-0 pb-0 mt-0 mb-0 top-[-5px]' : 'pt-0 pb-0 mt-0 mb-0'}`}>
       <div className="navbar-start flex items-center">
         {isMobileView && (
        <div 
