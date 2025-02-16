@@ -54,8 +54,8 @@ const FeaturedProducts = () => {
 
   const handleAddToCart = (product) => {
     addToCart(product, 1);
-    setShowToast(true); // Show toast after adding product
-    setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
+    // setShowToast(true); // Show toast after adding product
+    // setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
   };
 
   // Scroll functionality

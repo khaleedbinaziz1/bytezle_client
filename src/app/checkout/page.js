@@ -279,7 +279,7 @@ const Checkout = ({ user }) => {
 
       if (res.ok) {
         // Optionally, handle the response, e.g., order confirmation, etc.
-        await updateTrackRecord(orderId);
+
         const message = `
         New order placed! 
         Order ID: ${orderId}
@@ -290,7 +290,7 @@ const Checkout = ({ user }) => {
         Shipping Zone: ${shippingInfo.zone}
         
         Order Summary:
-        ${cartDetails.items.map(item => `- ${item.quantity}x ${item.name} (৳${item.price} each)`).join('\n')}
+     
         
         Total Cost: ৳${totalCost}
         Delivery Charge: ৳${zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge || 'N/A'}
@@ -299,6 +299,9 @@ const Checkout = ({ user }) => {
       `;
       
       await sendMessage(message);  // Send the message to the bot
+
+        await updateTrackRecord(orderId);
+      
       
       
 
@@ -441,16 +444,34 @@ const Checkout = ({ user }) => {
       } else {
         const trackRecordUpdated = await updateTrackRecord(orderId);
         if (!trackRecordUpdated) {
+          const message = `
+          New order placed!
+          Order ID: ${orderId}
+          Customer Name: ${shippingInfo.name}
+          Shipping Address: ${shippingInfo.location}
+          Phone Number: ${shippingInfo.phoneNumber}
+          Email: ${shippingInfo.email}
+          Shipping Zone: ${shippingInfo.zone}
+          
+          Order Summary:
+          ${cartDetails.items.map(item => `
+          - ${item.quantity}x ${item.name} (${item.color ? item.color + ' Color' : ''}) (৳${item.price} each)
+          `).join('')}
+          
+          Total Cost: ৳${totalCost}
+          Delivery Charge: ৳${zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge || 'N/A'}
+          Payment Option: ${paymentOption === 'full' ? 'Full Payment' : 'Partial Payment (Due: ৳' + dueAmount + ')'}
+          `;
+          
+        
+        await sendMessage(message);  // Send the message to the bot
           setIsPlacingOrder(false);
           return;
         }
       }
   
       await createOrder(); // Proceed with order creation
-  
-      // Send a message to the Telegram bot after the order is created
-      const message = `New order placed! Order ID: ${orderId}, Name: ${shippingInfo.name}, Total: ৳${totalCost}`;
-      await sendMessage(message);  // Send the message to the bot
+
   
       clearCart();
       localStorage.removeItem('cartDetails');

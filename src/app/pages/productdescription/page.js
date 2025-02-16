@@ -75,8 +75,8 @@ const ProductDescription = ({ id }) => {
         price: isWholesale ? product.wholesalePrice : product.price,
       };
       addToCart(productToAdd, wholesaleQuantity);
-      setShowToast(true); // Show toast after adding product
-      setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
+      // setShowToast(true); // Show toast after adding product
+      // setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
     }
   };
 
