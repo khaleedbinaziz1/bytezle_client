@@ -5,6 +5,7 @@ import { FaPlus, FaMinus, FaShoppingCart } from "react-icons/fa";
 import Image from "next/image";
 import { useCart } from "../Shared/Cart/CartProvider";
 import RelatedProducts from "./RelatedProducts";
+import { FaCheck } from "react-icons/fa"; // Import the check icon
 
 const ProductDescription = ({ id }) => {
   const [product, setProduct] = useState(null);
@@ -15,6 +16,7 @@ const ProductDescription = ({ id }) => {
   const [isMagnifierVisible, setIsMagnifierVisible] = useState(false);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [selectedColor, setSelectedColor] = useState(null);
+  const [showToast, setShowToast] = useState(false); // State for toast visibility
   const imageRef = useRef(null);
 
   const { addToCart } = useCart();
@@ -24,7 +26,7 @@ const ProductDescription = ({ id }) => {
       try {
         const response = await axios.get(`https://bytezle-server.vercel.app/products/${id}`);
         setProduct(response.data);
-        setSelectedColor(response.data.color ? response.data.color[0] : null); 
+        setSelectedColor(response.data.color ? response.data.color[0] : null);
       } catch (error) {
         console.error("Error fetching product:", error);
       }
@@ -73,6 +75,8 @@ const ProductDescription = ({ id }) => {
         price: isWholesale ? product.wholesalePrice : product.price,
       };
       addToCart(productToAdd, wholesaleQuantity);
+      setShowToast(true); // Show toast after adding product
+      setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
     }
   };
 
@@ -213,17 +217,17 @@ const ProductDescription = ({ id }) => {
             </button>
           </div>
 
-          {/* <div>
-            <label className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={isWholesale}
-                onChange={() => setIsWholesale(!isWholesale)}
-              />
-              <h1 className="text-xl text-green-600 font-bold">Buy in Wholesale Quantity</h1>
-            </label>
-          </div> */}
         </div>
+
+        {/* Toast Notification */}
+        {showToast && (
+          <div className="fixed inset-0 flex justify-center items-center z-50">
+            <div className="bg-teal-500 text-white py-2 px-6 rounded-lg shadow-lg flex items-center">
+              <FaCheck className="mr-2 text-lg" /> {/* Tick mark icon */}
+              Product added to cart!
+            </div>
+          </div>
+        )}
 
         {/* Additional Info Section */}
         <h2 className="text-lg font-bold mt-6">{product.title}</h2>

@@ -8,6 +8,7 @@ import Cart from '../Shared/Cart/Cart';
 import ProductDescription from '../productdescription/page';
 import addToWishlist from '../Wishlist/addToWishlist';
 import bannerImage from '../../../images/free_delivery.gif';
+import { FaCheck } from "react-icons/fa"; // Import the check icon
 
 const FeaturedProducts = () => {
   const [products, setProducts] = useState([]);
@@ -15,6 +16,7 @@ const FeaturedProducts = () => {
   const [error, setError] = useState(null);
   const router = useRouter();
   const { addToCart } = useCart();
+  const [showToast, setShowToast] = useState(false); // State for toast visibility
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -52,6 +54,8 @@ const FeaturedProducts = () => {
 
   const handleAddToCart = (product) => {
     addToCart(product, 1);
+    setShowToast(true); // Show toast after adding product
+    setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
   };
 
   // Scroll functionality
@@ -85,7 +89,7 @@ const FeaturedProducts = () => {
           behavior: 'smooth',
         });
       }
-    }, 3000); // Scroll every 3 seconds
+    }, 1500); // Scroll every 3 seconds
 
     // Clear the interval on component unmount
     return () => clearInterval(interval);
@@ -186,6 +190,14 @@ const FeaturedProducts = () => {
                       </span>
                     </div>
                     <div className="flex space-x-1">
+                      {showToast && (
+                        <div className="fixed inset-0 flex justify-center items-center z-1050">
+                          <div className="bg-teal-500 text-white py-2 px-6 rounded-lg shadow-lg flex items-center">
+                            <FaCheck className="mr-2 text-lg" /> {/* Tick mark icon */}
+                            Product added to cart!
+                          </div>
+                        </div>
+                      )}
                       <button
                         className="bg-gray-200 text-gray-600 rounded-full p-1 shadow-sm hover:bg-gray-300 transition-colors"
                         onClick={(e) => {

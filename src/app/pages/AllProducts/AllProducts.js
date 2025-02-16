@@ -9,6 +9,8 @@ import Cart from "../Shared/Cart/Cart";
 import ProductDescription from "../productdescription/page";
 import addToWishlist from "../Wishlist/addToWishlist";
 import bannerImage from "../../../images/all_product_bytezle.gif";
+import { FaCheck } from "react-icons/fa"; // Import the check icon
+
 
 const AllProducts = () => {
   const [products, setProducts] = useState([]);
@@ -26,6 +28,7 @@ const AllProducts = () => {
   const query = searchParams.get("q");
   const subcategory = decodeURIComponent(searchParams.get("subcategory") || "");
   const category = decodeURIComponent(searchParams.get("category") || "");
+  const [showToast, setShowToast] = useState(false); // State for toast visibility
 
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState({});
@@ -94,6 +97,7 @@ const AllProducts = () => {
         undefined,
         { shallow: true }
       );
+   
     } else {
       console.error("Product name is undefined or not a string:", productName);
     }
@@ -106,6 +110,8 @@ const AllProducts = () => {
 
   const handleAddToCart = (product) => {
     addToCart(product, 1);
+    setShowToast(true); // Show toast after adding product
+    setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
   };
 
   const handleAddToWishlist = async (productId) => {
@@ -162,25 +168,22 @@ const AllProducts = () => {
             >
               <ul className="space-y-1">
                 <li
-                  className={`p-2 cursor-pointer hover:bg-gray-100 ${
-                    sortOption === "price-low-to-high" ? "bg-blue-100" : ""
-                  }`}
+                  className={`p-2 cursor-pointer hover:bg-gray-100 ${sortOption === "price-low-to-high" ? "bg-blue-100" : ""
+                    }`}
                   onClick={() => handleSortChange("price-low-to-high")}
                 >
                   Sort by price: low to high
                 </li>
                 <li
-                  className={`p-2 cursor-pointer hover:bg-gray-100 ${
-                    sortOption === "price-high-to-low" ? "bg-blue-100" : ""
-                  }`}
+                  className={`p-2 cursor-pointer hover:bg-gray-100 ${sortOption === "price-high-to-low" ? "bg-blue-100" : ""
+                    }`}
                   onClick={() => handleSortChange("price-high-to-low")}
                 >
                   Sort by price: high to low
                 </li>
                 <li
-                  className={`p-2 cursor-pointer hover:bg-gray-100 ${
-                    sortOption === "latest" ? "bg-blue-100" : ""
-                  }`}
+                  className={`p-2 cursor-pointer hover:bg-gray-100 ${sortOption === "latest" ? "bg-blue-100" : ""
+                    }`}
                   onClick={() => handleSortChange("latest")}
                 >
                   Sort by latest
@@ -252,7 +255,17 @@ const AllProducts = () => {
                           </span>
                         )}
                       </div>
+                     
                       <div className="flex space-x-1">
+                          {/* Toast Notification */}
+                          {showToast && (
+                                <div className="fixed inset-0 flex justify-center items-center z-1050">
+                                  <div className="bg-teal-500 text-white py-2 px-6 rounded-lg shadow-lg flex items-center">
+                                    <FaCheck className="mr-2 text-lg" /> {/* Tick mark icon */}
+                                    Product added to cart!
+                                  </div>
+                                </div>
+                              )}
                         <button
                           className="bg-yellow-500 text-white rounded-full p-1 shadow-sm hover:bg-yellow-600 transition-colors"
                           onClick={(e) => {
