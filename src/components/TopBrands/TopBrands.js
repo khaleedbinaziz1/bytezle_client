@@ -6,19 +6,19 @@ import { useRouter } from "next/navigation"; // Import the useRouter hook
 
 
 import XiaomiLogo from "../../images/Xiaomi-logo.png";
-import UlanziLogo from "../../images/Ulanzi-Logo.jpg";
+import HavitLogo from "../../images/Havit (1).webp";
 import PhilipsLogo from "../../images/Philips-Logo.jpg";
 import PanasonicLogo from "../../images/Panasonic-Logo.jpg";
 import JoyroomLogo from "../../images/Joyroom-Logo.jpg";
 import CasioLogo from "../../images/casio.jpg";
 import BoyaLogo from "../../images/Boya-Logo.jpg";
-import BaseusLogo from "../../images/Baseus-Logo.jpg";
+import BaseusLogo from "../../images/baseus.webp";
 import AnkerLogo from "../../images/Anker-Logo.jpg";
 import Hoco from "../../images/hoco_logo.png";
 
 const brands = [
     { name: "Xiaomi", image: XiaomiLogo },
-    // { name: "Ulanzi", image: UlanziLogo },
+    { name: "Havit", image: HavitLogo },
     { name: "Philips", image: PhilipsLogo },
     { name: "Panasonic", image: PanasonicLogo },
     { name: "Joyroom", image: JoyroomLogo },

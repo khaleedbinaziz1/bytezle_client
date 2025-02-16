@@ -1,327 +1,319 @@
-
-
 "use client";
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { FaArrowLeft, FaShoppingCart, FaHeart } from 'react-icons/fa';
-import Image from 'next/image';
-import { useCart } from '../Shared/Cart/CartProvider';
-import Cart from '../Shared/Cart/Cart';
-import ProductDescription from '../productdescription/page';
-import addToWishlist from '../Wishlist/addToWishlist';
-import bannerImage from '../../../images/all_product_bytezle.gif'
-
-
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useSearchParams, useRouter } from "next/navigation";
+import { FaShoppingCart, FaHeart } from "react-icons/fa";
+import Image from "next/image";
+import { useCart } from "../Shared/Cart/CartProvider";
+import Cart from "../Shared/Cart/Cart";
+import ProductDescription from "../productdescription/page";
+import addToWishlist from "../Wishlist/addToWishlist";
+import bannerImage from "../../../images/all_product_bytezle.gif";
 
 const AllProducts = () => {
-    const [products, setProducts] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [loading, setLoading] = useState(true); // Add loading state
-    const [error, setError] = useState(null);
-    const itemsPerPage = 10; // Matching Breakfast's items per page
-    const router = useRouter();
-    const { addToCart } = useCart();
-    const searchParams = useSearchParams();
-    const selectedProductId = searchParams.get('product');
-    const query = searchParams.get('q');
-    const subcategory = decodeURIComponent(searchParams.get('subcategory') || '');
-    const category = decodeURIComponent(searchParams.get('category') || '');
+  const [products, setProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [sortOption, setSortOption] = useState("price-low-to-high");
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const itemsPerPage = 20;
+  const router = useRouter();
+  const { addToCart } = useCart();
+  const searchParams = useSearchParams();
+  const selectedProductId = searchParams.get("product");
+  const query = searchParams.get("q");
+  const subcategory = decodeURIComponent(searchParams.get("subcategory") || "");
+  const category = decodeURIComponent(searchParams.get("category") || "");
 
-    const [categories, setCategories] = useState([]);
-    const [subcategories, setSubcategories] = useState({});
-    const [expandedCategory, setExpandedCategory] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState({});
+  const [expandedCategory, setExpandedCategory] = useState(null);
 
-
-    useEffect(() => {
-        const fetchProducts = async () => {
-            setLoading(true); // Start loading
-            try {
-                let url = 'https://bytezle-server.vercel.app/products';
-
-                // Normalize query for consistent matching
-                const normalizeQuery = (str) => {
-                    return str
-                        .toLowerCase() // Convert to lowercase
-                        .replace(/[()]/g, '') // Remove parentheses
-                        .replace(/[^a-zA-Z0-9 ]/g, '') // Remove special characters
-                        .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
-                        .trim(); // Trim leading and trailing spaces
-                };
-
-                if (subcategory) {
-                    url += `/subcategory/${encodeURIComponent(subcategory)}`;
-                } else if (category) {
-                    url += `/category/${encodeURIComponent(category)}`;
-                } else if (query) {
-                    // Apply normalization to the query
-                    const normalizedQuery = normalizeQuery(query);
-                    url += `?q=${encodeURIComponent(normalizedQuery)}`;
-                }
-
-                const response = await axios.get(url);
-
-                // Filter for products with `showProduct` set to "On" and normalize their names
-                const filteredProducts = response.data
-                    .filter((product) => product.showProduct === "On")
-                    .map((product) => ({
-                        ...product,
-                        normalizedName: normalizeQuery(product.name), // Add normalized name for matching
-                    }));
-
-                setProducts(filteredProducts);
-                setTotalPages(Math.ceil(filteredProducts.length / itemsPerPage));
-            } catch (error) {
-                setError(`Error fetching products: ${error.message}`);
-            } finally {
-                setLoading(false); // End loading
-            }
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        let url = "https://bytezle-server.vercel.app/products";
+        const normalizeQuery = (str) => {
+          return str
+            .toLowerCase()
+            .replace(/[()]/g, "")
+            .replace(/[^a-zA-Z0-9 ]/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
         };
 
-        fetchProducts();
-    }, [query, subcategory, category]); // Include all dependencies
+        if (subcategory) {
+          url += `/subcategory/${encodeURIComponent(subcategory)}`;
+        } else if (category) {
+          url += `/category/${encodeURIComponent(category)}`;
+        } else if (query) {
+          const normalizedQuery = normalizeQuery(query);
+          url += `?q=${encodeURIComponent(normalizedQuery)}`;
+        }
 
+        const response = await axios.get(url);
 
-    useEffect(() => {
-        const fetchCategoriesAndSubcategories = async () => {
-            try {
-                if (!subcategory) {
-                    console.log("No subcategory provided in the URL.");
+        const filteredProducts = response.data
+          .filter((product) => product.showProduct === "On")
+          .map((product) => ({
+            ...product,
+            normalizedName: normalizeQuery(product.name),
+          }));
 
-                    return;
-                }
+        // Apply sorting
+        if (sortOption === "price-low-to-high") {
+          filteredProducts.sort((a, b) => a.price - b.price);
+        } else if (sortOption === "price-high-to-low") {
+          filteredProducts.sort((a, b) => b.price - a.price);
+        } else if (sortOption === "latest") {
+          filteredProducts.sort(
+            (a, b) => new Date(b.dateAdded) - new Date(a.dateAdded)
+          );
+        }
 
-                console.log("Fetching details for subcategory:", subcategory);
-
-                // Fetch the category of the given subcategory
-                const subcategoryResponse = await axios.get(`https://bytezle-server.vercel.app/subcategoriesByName?name=${subcategory}`);
-                console.log("Subcategory response:", subcategoryResponse.data);
-
-                // Check if the response contains any subcategories
-                if (subcategoryResponse.data.length === 0) {
-
-                    setError("Subcategory not found.");
-                    return;
-                }
-
-                // Assuming the first item in the response contains the categoryId
-                const categoryId = subcategoryResponse.data[0]?.category; // The 'category' field holds the categoryId
-
-                if (!categoryId) {
-
-                    setError("Category not found for the selected subcategory");
-                    return;
-                }
-
-                console.log("Category ID associated with the subcategory:", categoryId);
-
-                // Fetch subcategories under the same category
-                const subcategoriesResponse = await axios.get(`https://bytezle-server.vercel.app/subcategories/category/${categoryId}`);
-                console.log("Subcategories response for the category:", subcategoriesResponse.data);
-
-                // Set the category name (assuming you have the category name in your response)
-                setCategories([{ _id: categoryId, name: subcategoryResponse.data[0]?.categoryName }]);
-                console.log("Updated categories state:", [{ _id: categoryId, name: subcategoryResponse.data[0]?.categoryName }]);
-
-                // Since subcategoriesResponse.data is an array, set it directly
-                setSubcategories(prevState => ({
-                    ...prevState,
-                    [categoryId]: subcategoriesResponse.data
-                }));
-                console.log("Updated subcategories state:", { [categoryId]: subcategoriesResponse.data });
-
-            } catch (err) {
-
-                setError("Error fetching categories or subcategories");
-            }
-        };
-        fetchCategoriesAndSubcategories();
-
-    })
-
-
-
-    const handleProductClick = (id, productName) => {
-      // Ensure productName is defined and is a string
-      if (typeof productName === 'string') {
-        // Extract the first word from the product name
-        const firstWord = productName.split(' ')[0];
-        // Pass both the product ID and the first word in the URL
-        router.push(`/pages/freshdeals?product=${id}&name=${encodeURIComponent(firstWord)}`, undefined, { shallow: true });
-      } else {
-        console.error('Product name is undefined or not a string:', productName);
+        setProducts(filteredProducts);
+        setTotalPages(Math.ceil(filteredProducts.length / itemsPerPage));
+      } catch (error) {
+        setError(`Error fetching products: ${error.message}`);
+      } finally {
+        setLoading(false);
       }
     };
-    
-    const handleBackClick = () => {
-        router.push('/', undefined, { shallow: true });
-    };
 
-    const handleAddToCart = (product) => {
-        addToCart(product, 1);
-    };
+    fetchProducts();
+  }, [query, subcategory, category, sortOption]);
 
-    const handleAddToWishlist = async (productId) => {
-        await addToWishlist(productId); // Call the function to add product to wishlist
-    };
+  const handleProductClick = (id, productName) => {
+    if (typeof productName === "string") {
+      const firstWord = productName.split(" ")[0];
+      router.push(
+        `/pages/freshdeals?product=${id}&name=${encodeURIComponent(firstWord)}`,
+        undefined,
+        { shallow: true }
+      );
+    } else {
+      console.error("Product name is undefined or not a string:", productName);
+    }
+  };
 
-    const nextPage = () => {
-        if (currentPage < totalPages) {
-            setCurrentPage(currentPage + 1);
-        }
-    };
+  const handleSortChange = (option) => {
+    setSortOption(option);
+    setDropdownVisible(false);
+  };
 
-    const prevPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-        }
-    };
+  const handleAddToCart = (product) => {
+    addToCart(product, 1);
+  };
 
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
+  const handleAddToWishlist = async (productId) => {
+    await addToWishlist(productId);
+  };
 
-    return (
-      <div className="mx-auto p-4">
-  {bannerImage && (
-    <div className="mb-4">
-      <Image
-        src={bannerImage}
-        alt="Banner"
-        className="w-full rounded-lg object-cover"
-        width={1200}
-        height={300}
-      />
-    </div>
-  )}
-  <Cart />
-  {selectedProductId ? (
-    <ProductDescription id={selectedProductId} />
-  ) : (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-        {loading ? (
-          Array.from({ length: itemsPerPage }).map((_, index) => (
-            <div key={index} className="bg-white rounded-lg shadow animate-pulse">
-              <div className="w-full h-48 bg-gray-300"></div>
-              <div className="p-3">
-                <div className="h-6 bg-gray-300 mb-2"></div>
-                <div className="h-4 bg-gray-300"></div>
-              </div>
-            </div>
-          ))
-        ) : (
-          products.slice(startIndex, endIndex).map((product) => (
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  const handlePageClick = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  return (
+    <div className="mx-auto mt-5 text-center rounded bg-white">
+      {bannerImage && (
+        <div className="mb-4">
+          <Image
+            src={bannerImage}
+            alt="Banner"
+            className="w-full rounded-lg object-cover"
+            width={1200}
+            height={300}
+          />
+        </div>
+      )}
+      <Cart />
+
+      {/* Sorting Dropdown */}
+      <div className="flex justify-between items-center p-4">
+        <div className="relative">
+          <button
+            onClick={() => setDropdownVisible(!dropdownVisible)}
+            className="bg-blue-500 text-white px-4 py-2 rounded-md focus:outline-none"
+          >
+            Sort By
+          </button>
+          {dropdownVisible && (
             <div
-              key={product._id}
-              className="bg-white rounded-lg shadow hover:shadow-md cursor-pointer transition-all duration-200"
-              onClick={() => handleProductClick(product._id, product.name)}
+              className="absolute   mt-1 w-40 bg-white shadow-lg rounded-md "
+              style={{ zIndex: 10000 }}
             >
-              {product.images && product.images.length > 0 && product.images[0] ? ( // Simplified image check
-                <div className="w-full h-48 overflow-hidden relative">
-                  <Image
-                    src={product.images[0].img ? `data:${product.images[0].contentType};base64,${product.images[0].img}` : product.images[0]}
-                    alt={product.name}
-                    className="w-full h-60 "
-                    width={200}
-                    height={200}
-                
-                  />
-                </div>
-              ) : (
-                <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                  <span>No Images</span>
-                </div>
-              )}
-
-              <div className="p-3">
-                <p className="font-semibold text-gray-900 text-md line-clamp-2 mb-1">
-                  {product.name
-                    .toLowerCase()
-                    .split(" ")
-                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ")}
-                </p>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h1 className="text-yellow-600 font-bold text-lg">
-                      ৳{product.price}
-                    </h1>
-                    {product.storePrice && (
-                      <span className="text-gray-500 line-through text-xs">
-                        ৳{product.storePrice}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex space-x-1">
-                    <button
-                      className="bg-yellow-500 text-white rounded-full p-1 shadow-sm hover:bg-yellow-600 transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddToCart(product);
-                      }}
-                    >
-                      <FaShoppingCart className="text-lg" />
-                    </button>
-                    <button
-                      className="bg-red-500 text-white rounded-full p-1 shadow-sm hover:bg-red-600 transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddToWishlist(product._id);
-                      }}
-                    >
-                      <FaHeart className="text-lg" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <ul className="space-y-1">
+                <li
+                  className={`p-2 cursor-pointer hover:bg-gray-100 ${
+                    sortOption === "price-low-to-high" ? "bg-blue-100" : ""
+                  }`}
+                  onClick={() => handleSortChange("price-low-to-high")}
+                >
+                  Sort by price: low to high
+                </li>
+                <li
+                  className={`p-2 cursor-pointer hover:bg-gray-100 ${
+                    sortOption === "price-high-to-low" ? "bg-blue-100" : ""
+                  }`}
+                  onClick={() => handleSortChange("price-high-to-low")}
+                >
+                  Sort by price: high to low
+                </li>
+                <li
+                  className={`p-2 cursor-pointer hover:bg-gray-100 ${
+                    sortOption === "latest" ? "bg-blue-100" : ""
+                  }`}
+                  onClick={() => handleSortChange("latest")}
+                >
+                  Sort by latest
+                </li>
+              </ul>
             </div>
-          ))
-        )}
-      </div>
-      <div className="flex justify-center mt-4">
-        <button
-          className="btn btn-outline mr-2"
-          onClick={prevPage}
-          disabled={currentPage === 1}
-        >
-          Previous
-        </button>
-        <button
-          className="btn btn-outline ml-2"
-          onClick={nextPage}
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </button>
-      </div>
-    </>
-  )}
-  <div className="mt-4">
-    {Object.keys(subcategories).map((categoryId) => (
-      <div key={categoryId} className="mb-4">
-        <h3 className="font-bold text-md mb-2">
-          {categories.find((cat) => cat._id === categoryId)?.name ||
-            "Explore More"}
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {subcategories[categoryId]?.map((subcat) => (
-            <button
-              key={subcat._id}
-              className="btn btn-secondary rounded-lg py-1 px-3"
-              onClick={() =>
-                router.push(`?subcategory=${encodeURIComponent(subcat.name)}`)
-              }
-            >
-              {subcat.name}
-            </button>
-          ))}
+          )}
         </div>
       </div>
-    ))}
-  </div>
-</div>
-    );
+
+      {selectedProductId ? (
+        <ProductDescription id={selectedProductId} />
+      ) : (
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-4">
+            {loading ? (
+              Array.from({ length: itemsPerPage }).map((_, index) => (
+                <div key={index} className="bg-white rounded-lg shadow animate-pulse">
+                  <div className="w-full h-48 bg-gray-300"></div>
+                  <div className="p-3">
+                    <div className="h-6 bg-gray-300 mb-2"></div>
+                    <div className="h-4 bg-gray-300"></div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              products.slice(startIndex, endIndex).map((product) => (
+                <div
+                  key={product._id}
+                  className="bg-white rounded-lg shadow hover:shadow-md cursor-pointer transition-all duration-200"
+                  onClick={() => handleProductClick(product._id, product.name)}
+                >
+                  {product.images && product.images.length > 0 && product.images[0] ? (
+                    <div className="w-full h-48 overflow-hidden relative">
+                      <Image
+                        src={
+                          product.images[0].img
+                            ? `data:${product.images[0].contentType};base64,${product.images[0].img}`
+                            : product.images[0]
+                        }
+                        alt={product.name}
+                        className="w-full h-60 object-cover"
+                        width={200}
+                        height={200}
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                      <span>No Images</span>
+                    </div>
+                  )}
+
+                  <div className="p-3">
+                    <p className="font-semibold text-gray-900 text-md line-clamp-2 mb-1">
+                      {product.name
+                        .toLowerCase()
+                        .split(" ")
+                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(" ")}
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h1 className="text-yellow-600 font-bold text-lg">
+                          ৳{product.price}
+                        </h1>
+                        {product.storePrice && (
+                          <span className="text-gray-500 line-through text-xs">
+                            ৳{product.storePrice}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex space-x-1">
+                        <button
+                          className="bg-yellow-500 text-white rounded-full p-1 shadow-sm hover:bg-yellow-600 transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCart(product);
+                          }}
+                        >
+                          <FaShoppingCart className="text-lg" />
+                        </button>
+                        <button
+                          className="bg-red-500 text-white rounded-full p-1 shadow-sm hover:bg-red-600 transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToWishlist(product._id);
+                          }}
+                        >
+                          <FaHeart className="text-lg" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Pagination */}
+          <div className="flex justify-center mt-4">
+            <button
+              className="btn btn-outline mr-2"
+              onClick={prevPage}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+
+            {/* Page Numbers */}
+            <div className="flex space-x-2">
+              {[...Array(totalPages)].map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => handlePageClick(index + 1)}
+                  className={`px-4 py-2 rounded-md ${currentPage === index + 1 ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+
+            <button
+              className="btn btn-outline ml-2"
+              onClick={nextPage}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
 };
 
 export default AllProducts;
