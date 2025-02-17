@@ -281,7 +281,7 @@ const Checkout = ({ user }) => {
         // Optionally, handle the response, e.g., order confirmation, etc.
 
         const message = `
-        New order placed! 
+        New order placed!
         Order ID: ${orderId}
         Customer Name: ${shippingInfo.name}
         Shipping Address: ${shippingInfo.location}
@@ -290,13 +290,15 @@ const Checkout = ({ user }) => {
         Shipping Zone: ${shippingInfo.zone}
         
         Order Summary:
-     
+        ${cartDetails.items.map(item => `
+        - ${item.quantity}x ${item.name} (${item.color ? item.color + ' Color' : ''}) (৳${item.price} each)
+        `).join('')}
         
         Total Cost: ৳${totalCost}
         Delivery Charge: ৳${zones.find(zone => zone.name === shippingInfo.zone)?.delivery_charge || 'N/A'}
-        
         Payment Option: ${paymentOption === 'full' ? 'Full Payment' : 'Partial Payment (Due: ৳' + dueAmount + ')'}
-      `;
+        `;
+        
       
       await sendMessage(message);  // Send the message to the bot
 
