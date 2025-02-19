@@ -47,7 +47,7 @@ const Breakfast = () => {
   
 
   const handleProductClick = (id) => {
-    router.push(`pages/freshdeals/?product=${id}`, undefined, { shallow: true });
+    router.push(`pages/products/?product=${id}`, undefined, { shallow: true });
   };
 
   const handleBackClick = () => {
@@ -90,7 +90,7 @@ const Breakfast = () => {
   </div>
   <button 
     className="bg-#FFD601-500 text-white font-bold text-lg py-2 px-4 rounded-lg hover:bg-#FFD601-600 transition duration-300 ease-in-out shadow-md"
-    onClick={() => router.push('/pages/freshdeals?category=Breakfast')}
+    onClick={() => router.push('/pages/products?category=Breakfast')}
   >
     See All
   </button>

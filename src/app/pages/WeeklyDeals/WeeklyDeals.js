@@ -68,7 +68,7 @@ const WeeklyDeals = () => {
   }, []);
 
   const handleProductClick = (id) => {
-    window.location.href = `/pages/freshdeals?product=${id}`;
+    window.location.href = `/pages/products?product=${id}`;
   };
 
   const handleAddToCart = (product) => {

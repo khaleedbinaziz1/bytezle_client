@@ -42,7 +42,7 @@ const FeaturedProducts = () => {
   const handleProductClick = (id, productName) => {
     if (typeof productName === 'string') {
       const firstWord = productName.split(' ')[0];
-      router.push(`/pages/freshdeals?product=${id}&name=${encodeURIComponent(firstWord)}`, undefined, { shallow: true });
+      router.push(`/pages/products?product=${id}&name=${encodeURIComponent(firstWord)}`, undefined, { shallow: true });
     } else {
       console.error('Product name is undefined or not a string:', productName);
     }

@@ -42,7 +42,7 @@ const SubcategoriesContent = () => {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6 bg-gray-50 rounded-xl shadow-lg">
             {subcategories.map((subcategory, index) => (
-                <Link key={subcategory.id} href={`/pages/freshdeals?subcategory=${encodeURIComponent(subcategory.name)}`} passHref>
+                <Link key={subcategory.id} href={`/pages/products?subcategory=${encodeURIComponent(subcategory.name)}`} passHref>
                     <div 
                         className="flex flex-col items-center bg-white border border-gray-200 rounded-xl shadow-md p-5 cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:bg-gray-100"
                     >

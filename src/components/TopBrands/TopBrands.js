@@ -22,7 +22,7 @@ const TopBrands = () => {
 
     // Function to handle brand click
     const handleBrandClick = (brandName) => {
-        router.push(`/pages/freshdeals?q=${brandName.toLowerCase()}`);
+        router.push(`/pages/products?q=${brandName.toLowerCase()}`);
     };
 
     return (

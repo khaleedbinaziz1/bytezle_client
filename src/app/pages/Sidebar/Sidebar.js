@@ -61,7 +61,7 @@ const Sidebar = ({ toggleSidebar }) => {
   };
 
   const handleSubcategoryClick = (subcategoryName) => {
-    router.push(`/pages/freshdeals/?subcategory=${encodeURIComponent(subcategoryName)}`);
+    router.push(`/pages/products/?subcategory=${encodeURIComponent(subcategoryName)}`);
     toggleSidebar();
   };
 

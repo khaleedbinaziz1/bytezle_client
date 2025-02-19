@@ -53,7 +53,7 @@ const BabyiItem = () => {
   };
 
   const handleProductClick = (id) => {
-    router.push(`pages/freshdeals/?product=${id}`, undefined, { shallow: true });
+    router.push(`pages/products/?product=${id}`, undefined, { shallow: true });
   };
 
   const handleBackClick = () => {
@@ -76,7 +76,7 @@ const BabyiItem = () => {
   </div>
   <button 
     className="bg-#FFD601-500 text-white font-bold text-lg py-2 px-4 rounded-lg hover:bg-#FFD601-600 transition duration-300 ease-in-out shadow-md"
-    onClick={() => router.push('/pages/freshdeals?category=Baby%20Care')}
+    onClick={() => router.push('/pages/products?category=Baby%20Care')}
   >
     View All
   </button>

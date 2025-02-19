@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaSearch } from 'react-icons/fa';
 import Fuse from 'fuse.js';
+import Image from 'next/image';
 
 // Helper function to normalize strings
 const normalizeString = (str) => {
@@ -56,10 +57,10 @@ const Searchbar = () => {
       const fuzzyResults = fuse.search(normalizedQuery);
       const filteredSuggestions = fuzzyResults.map((result) => result.item);
       setSuggestions(filteredSuggestions);
-      router.push(`/pages/freshdeals?q=${encodeURIComponent(value.trim())}`);
+      router.push(`/pages/products?q=${encodeURIComponent(value.trim())}`);
     } else {
       setSuggestions([]);
-      router.push(`/pages/freshdeals`);
+      router.push(`/pages/products`);
     }
   };
 
@@ -68,7 +69,7 @@ const Searchbar = () => {
     const encodedQuery = encodeURIComponent(firstTwoWords);
     setQuery(firstTwoWords);
     setSuggestions([]);
-    router.push(`/pages/freshdeals?q=${encodedQuery}`);
+    router.push(`/pages/products?q=${encodedQuery}`);
   };
 
   const handleClickOutside = (event) => {
@@ -86,13 +87,13 @@ const Searchbar = () => {
 
   const handleKeyPress = (event) => {
     if (event.key === "Enter") {
-      router.push(`/pages/freshdeals?q=${encodeURIComponent(query)}`);
+      router.push(`/pages/products?q=${encodeURIComponent(query)}`);
       setSuggestions([]);
     }
   };
 
   const handleSearchButtonClick = () => {
-    router.push(`/pages/freshdeals?q=${encodeURIComponent(query)}`);
+    router.push(`/pages/products?q=${encodeURIComponent(query)}`);
     setSuggestions([]);
   };
 
@@ -123,10 +124,12 @@ const Searchbar = () => {
               className="p-2 flex items-center space-x-3 cursor-pointer hover:bg-gray-100"
               onClick={() => handleSuggestionClick(suggestion)}
             >
-              <img
+              <Image
                 src={suggestion.images[0]}
                 alt={suggestion.name}
-                className="w-8 h-8 object-cover rounded"
+                className="object-cover rounded"
+                width={40}
+                height={40}
                 loading="lazy"
               />
               <div className="flex-1">

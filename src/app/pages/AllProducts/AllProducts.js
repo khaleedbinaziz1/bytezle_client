@@ -93,7 +93,7 @@ const AllProducts = () => {
     if (typeof productName === "string") {
       const firstWord = productName.split(" ")[0];
       router.push(
-        `/pages/freshdeals?product=${id}&name=${encodeURIComponent(firstWord)}`,
+        `/pages/products?product=${id}&name=${encodeURIComponent(firstWord)}`,
         undefined,
         { shallow: true }
       );

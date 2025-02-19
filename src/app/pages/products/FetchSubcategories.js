@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Shared/Footer/Footer";
+import Image from "next/image";
 
 const SubcategoriesContent = () => {
   const [subcategories, setSubcategories] = useState([]);
@@ -65,17 +66,19 @@ const SubcategoriesContent = () => {
       {subcategories.map((subcategory, index) => (
         <Link
           key={subcategory.id}
-          href={`/pages/freshdeals?subcategory=${encodeURIComponent(subcategory.name)}`}
+          href={`/pages/products?subcategory=${encodeURIComponent(subcategory.name)}`}
           passHref
         >
           <div
             className={`relative group rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out ${getColorForCategory(index)}`}
           >
             {/* Image */}
-            <img
+            <Image
               src={subcategory.img} // Assuming the field in your database is `img` for image URLs
               alt={subcategory.name}
-              className="w-full h-48 object-cover rounded-t-lg"
+              className="object-cover rounded-t-lg"
+              width={40}
+              height={40}
             />
             {/* Overlay Effect */}
             <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>

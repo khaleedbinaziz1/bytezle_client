@@ -39,11 +39,11 @@ const Hero = () => {
 
     fetchCategoriesAndSubcategories();
   }, []);
-
-  const handleSubcategoryClick = (subcategoryName) => {
-    router.push(`/pages/freshdeals/?subcategory=${encodeURIComponent(subcategoryName)}`);
+  const handleSubcategoryClick = (category, subcategoryName) => {
+    // Constructing the URL with query parameters
+    router.push(`/pages/products?category=${encodeURIComponent(category.name)}&subcategory=${encodeURIComponent(subcategoryName)}`);
   };
-
+  
   const handleMouseEnter = (categoryId) => {
     setHoveredCategory(categoryId);
     setIsLeaving(false);
@@ -64,54 +64,55 @@ const Hero = () => {
       {/* Sidebar */}
       <div className="hidden md:block w-64 bg-white shadow-md p-4">
         <ul className="space-y-2">
-          {categories.map((category) => (
-            <li
-              key={category._id}
-              className="cursor-pointer group relative"
-              onMouseEnter={() => handleMouseEnter(category._id)}
-              onMouseLeave={handleMouseLeave}
-            >
-              <div className="flex items-center space-x-3 p-2 border-b border-gray-300 rounded-lg hover:bg-gray-100 transition-all duration-300">
-                {category.img && (
-                  <Image
-                    src={category.img}
-                    alt={category.name}
-                    width={24}
-                    height={24}
-                    className="w-6 h-6 object-cover rounded-full"
-                  />
-                )}
-                <span className="text-gray-700 text-sm">{category.name}</span>
-              </div>
+        {categories.map((category) => (
+  <li
+    key={category._id}
+    className="cursor-pointer group relative"
+    onMouseEnter={() => handleMouseEnter(category._id)}
+    onMouseLeave={handleMouseLeave}
+  >
+    <div className="flex items-center space-x-3 p-2 border-b border-gray-300 rounded-lg hover:bg-gray-100 transition-all duration-300">
+      {category.img && (
+        <Image
+          src={category.img}
+          alt={category.name}
+          width={24}
+          height={24}
+          className="w-6 h-6 object-cover rounded-full"
+        />
+      )}
+      <span className="text-gray-700 text-sm">{category.name}</span>
+    </div>
 
-              {/* Subcategories Box on Hover */}
-              {hoveredCategory === category._id && (
-                <div className="absolute left-64 top-0 w-64 bg-white shadow-lg rounded-lg p-4 border border-gray-300 z-10 opacity-100 transition-all duration-300 transform translate-x-0">
-                  <h4 className="text-md font-semibold mb-2">Subcategories</h4>
-                  <ul className="space-y-2">
-                    {subcategories[category._id]?.map((subcategory) => (
-                      <li
-                        key={subcategory._id}
-                        className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-all duration-300 cursor-pointer border-b border-gray-200"
-                        onClick={() => handleSubcategoryClick(subcategory.name)}
-                      >
-                        {subcategory.img && (
-                          <Image
-                            src={subcategory.img}
-                            alt={subcategory.name}
-                            width={20}
-                            height={20}
-                            className="w-5 h-5 object-cover rounded-full"
-                          />
-                        )}
-                        <span className="text-sm text-gray-600">{subcategory.name}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+    {/* Subcategories Box on Hover */}
+    {hoveredCategory === category._id && (
+      <div className="absolute left-64 top-0 w-64 bg-white shadow-lg rounded-lg p-4 border border-gray-300 z-10 opacity-100 transition-all duration-300 transform translate-x-0">
+        <h4 className="text-md font-semibold mb-2">Subcategories</h4>
+        <ul className="space-y-2">
+          {subcategories[category._id]?.map((subcategory) => (
+            <li
+              key={subcategory._id}
+              className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-all duration-300 cursor-pointer border-b border-gray-200"
+              onClick={() => handleSubcategoryClick(category, subcategory.name)}
+            >
+              {subcategory.img && (
+                <Image
+                  src={subcategory.img}
+                  alt={subcategory.name}
+                  width={20}
+                  height={20}
+                  className="w-5 h-5 object-cover rounded-full"
+                />
               )}
+              <span className="text-sm text-gray-600">{subcategory.name}</span>
             </li>
           ))}
+        </ul>
+      </div>
+    )}
+  </li>
+))}
+
         </ul>
       </div>
 

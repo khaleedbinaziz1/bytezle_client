@@ -51,7 +51,7 @@ const DipsSpread = () => {
   };
 
   const handleProductClick = (id) => {
-    router.push(`pages/freshdeals/?product=${id}`, undefined, { shallow: true });
+    router.push(`pages/products/?product=${id}`, undefined, { shallow: true });
   };
 
   const handleBackClick = () => {
@@ -91,7 +91,7 @@ const DipsSpread = () => {
   </div>
   <button 
     className="bg-#FFD601-500 text-white font-bold text-lg py-2 px-4 rounded-lg hover:bg-#FFD601-600 transition duration-300 ease-in-out shadow-md"
-    onClick={() => router.push('/pages/freshdeals?subcategory=Dips%20%26%20Spreads')}
+    onClick={() => router.push('/pages/products?subcategory=Dips%20%26%20Spreads')}
   >
     See All
   </button>

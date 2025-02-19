@@ -14,7 +14,7 @@ import FetchSubcategories from './FetchSubcategories';
 import { FaCheck } from "react-icons/fa"; // Import the check icon
 
 
-const FreshDealsContent = () => {
+const ProductsContent = () => {
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -40,7 +40,7 @@ const FreshDealsContent = () => {
       setLoading(true); // Start loading
       try {
         let url = 'https://bytezle-server.vercel.app/products';
-
+  
         // Normalize query for consistent matching
         const normalizeQuery = (str) => {
           return str
@@ -50,19 +50,28 @@ const FreshDealsContent = () => {
             .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
             .trim(); // Trim leading and trailing spaces
         };
-
+  
+        const params = new URLSearchParams();
+  
+        // Build URL with the relevant query parameters
         if (subcategory) {
           url += `/subcategory/${encodeURIComponent(subcategory)}`;
         } else if (category) {
           url += `/category/${encodeURIComponent(category)}`;
-        } else if (query) {
-          // Apply normalization to the query
-          const normalizedQuery = normalizeQuery(query);
-          url += `?q=${encodeURIComponent(normalizedQuery)}`;
         }
-
+  
+        if (query) {
+          const normalizedQuery = normalizeQuery(query);
+          params.append('q', encodeURIComponent(normalizedQuery));
+        }
+  
+        // Append the query parameters if present
+        if (params.toString()) {
+          url += `?${params.toString()}`;
+        }
+  
         const response = await axios.get(url);
-
+  
         // Filter for products with `showProduct` set to "On" and normalize their names
         const filteredProducts = response.data
           .filter((product) => product.showProduct === "On")
@@ -70,7 +79,7 @@ const FreshDealsContent = () => {
             ...product,
             normalizedName: normalizeQuery(product.name), // Add normalized name for matching
           }));
-
+  
         setProducts(filteredProducts);
         setTotalPages(Math.ceil(filteredProducts.length / itemsPerPage));
       } catch (error) {
@@ -79,10 +88,10 @@ const FreshDealsContent = () => {
         setLoading(false); // End loading
       }
     };
-
+  
     fetchProducts();
   }, [query, subcategory, category]); // Include all dependencies
-
+  
 
   useEffect(() => {
     const fetchCategoriesAndSubcategories = async () => {
@@ -352,4 +361,4 @@ const FreshDealsContent = () => {
   );
 };
 
-export default FreshDealsContent;
+export default ProductsContent;
