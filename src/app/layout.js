@@ -19,25 +19,28 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        {/* Favicon */}
-        <link rel="icon" href="../../public/favicon.ico" />
+  {/* Favicon */}
+  <link rel="icon" href="/public/favicon.ico" />
 
-        {/* Open Graph Meta Tags for Facebook and LinkedIn */}
-        <meta property="og:title" content="bytezle" />
-        <meta property="og:description" content="Your short description here." />
-        <meta property="og:image" content="https://bytezle.com/path/to/your-image.jpg" />
-        <meta property="og:url" content="https://bytezle.com" />
-        <meta property="og:type" content="website" />
+  {/* Open Graph Meta Tags (Facebook, Instagram, LinkedIn, WhatsApp) */}
+  <meta property="og:title" content="Bytezle | Best Gadget Store in Bangladesh" />
+  <meta property="og:description" content="Shop the latest gadgets and electronics in Bangladesh at the best prices!" />
+  <meta property="og:image" content="https://bytezle.com/logo.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:url" content="https://bytezle.com" />
+  <meta property="og:type" content="website" />
 
-        {/* Twitter Card Meta Tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="bytezle" />
-        <meta name="twitter:description" content="Your short description here." />
-        <meta name="twitter:image" content="https://bytezle.com/path/to/your-image.jpg" />
-        <meta name="twitter:url" content="https://bytezle.com" />
-        
-        {/* Add other metadata as needed */}
-      </head>
+  {/* Twitter Meta Tags */}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Bytezle | Best Gadget Store in Bangladesh" />
+  <meta name="twitter:description" content="Shop the latest gadgets and electronics in Bangladesh at the best prices!" />
+  <meta name="twitter:image" content="https://bytezle.com/logo.png" />
+  <meta name="twitter:url" content="https://bytezle.com" />
+
+  {/* WhatsApp, Telegram, Messenger (Uses Open Graph) */}
+</head>
+
       <body className={openSans.className}>
         <CartProvider>
           <div className="fixed top-0 left-0 w-full z-50">

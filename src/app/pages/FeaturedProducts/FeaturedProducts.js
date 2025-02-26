@@ -80,20 +80,26 @@ const FeaturedProducts = () => {
   };
 
   useEffect(() => {
-    // Auto-scroll the container every 3 seconds
+    const scrollContainer = document.getElementById('scrollable-container');
+  
+    if (!scrollContainer) return;
+  
+    let scrollAmount = 300; // Distance to scroll
+    let speed = 3000; // Time in ms
+  
     const interval = setInterval(() => {
-      const scrollContainer = document.getElementById('scrollable-container');
-      if (scrollContainer) {
-        scrollContainer.scrollBy({
-          left: 300, // Adjust the scroll distance as needed
-          behavior: 'smooth',
-        });
+      if (scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth) {
+        // If at the end, reset scroll position smoothly
+        scrollContainer.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        // Continue scrolling forward
+        scrollContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
       }
-    }, 1500); // Scroll every 3 seconds
-
-    // Clear the interval on component unmount
+    }, speed);
+  
     return () => clearInterval(interval);
   }, []);
+  
 
   return (
     <div className="mx-auto   text-center rounded bg-white">
