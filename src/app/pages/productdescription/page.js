@@ -13,8 +13,6 @@ const ProductDescription = ({ id }) => {
   const [isWholesale, setIsWholesale] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [calculation, setCalculation] = useState(0);
-  const [isMagnifierVisible, setIsMagnifierVisible] = useState(false);
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [selectedColor, setSelectedColor] = useState(null);
   const [showToast, setShowToast] = useState(false); // State for toast visibility
   const imageRef = useRef(null);
@@ -80,15 +78,6 @@ const ProductDescription = ({ id }) => {
     }
   };
 
-  const handleMouseMove = (e) => {
-    const { left, top, width, height } = imageRef.current.getBoundingClientRect();
-    const x = ((e.pageX - left) / width) * 100;  // Adjust the 100 to control zoom level
-    const y = ((e.pageY - top) / height) * 100;
-    setCursorPosition({ x, y });
-  };
-
-
-
   const handleColorChange = (color) => {
     setSelectedColor(color);
   };
@@ -103,12 +92,7 @@ const ProductDescription = ({ id }) => {
         {/* Image Section (Center Main Image) */}
         <div className="flex flex-col lg:flex-row items-center gap-6 justify-center">
           {/* Main Image */}
-          <div
-            className="relative w-full lg:w-2/5 flex justify-center"
-            onMouseEnter={() => setIsMagnifierVisible(true)}
-            onMouseLeave={() => setIsMagnifierVisible(false)}
-            onMouseMove={handleMouseMove}
-          >
+          <div className="relative w-full lg:w-2/5 flex justify-center">
             <Image
               ref={imageRef}
               src={product.images[selectedImageIndex]}
@@ -117,33 +101,7 @@ const ProductDescription = ({ id }) => {
               height={350}
               className="w-full h-auto rounded-lg"
             />
-            {isMagnifierVisible && (
-              <div
-                className="absolute border-2 border-gray-400 bg-white bg-opacity-50 pointer-events-none rounded-full"
-                style={{
-                  left: `${cursorPosition.x}%`,
-                  top: `${cursorPosition.y}%`,
-                  width: "20%",
-                  height: "20%",
-                  transform: "translate(-50%, -50%)",
-                }}
-              />
-            )}
           </div>
-
-          {/* Magnified Image Box (Visible on desktop) */}
-          {isMagnifierVisible && (
-            <div className="lg:w-2/5 w-full flex justify-center">
-              <div
-                className="w-full h-[350px] border-2 border-gray-200 overflow-hidden rounded-lg"
-                style={{
-                  backgroundImage: `url(${product.images[selectedImageIndex]})`,
-                  backgroundPosition: `${cursorPosition.x}% ${cursorPosition.y}%`,
-                  backgroundSize: `${imageRef.current?.width * 2}px ${imageRef.current?.height * 2}px`,
-                }}
-              />
-            </div>
-          )}
         </div>
 
         {/* Thumbnails Section */}
@@ -283,8 +241,6 @@ const ProductDescription = ({ id }) => {
       </div>
       <RelatedProducts />
     </div>
-
-
   );
 };
 
