@@ -19,27 +19,52 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-  {/* Favicon */}
-  <link rel="icon" href="/public/favicon.ico" />
+        {/* Favicon */}
+        <link rel="icon" href="/public/favicon.ico" />
 
-  {/* Open Graph Meta Tags (Facebook, Instagram, LinkedIn, WhatsApp) */}
-  <meta property="og:title" content="Bytezle | Best Gadget Store in Bangladesh" />
-  <meta property="og:description" content="Shop the latest gadgets and electronics in Bangladesh at the best prices!" />
-  <meta property="og:image" content="https://bytezle.com/logo.png" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:url" content="https://bytezle.com" />
-  <meta property="og:type" content="website" />
+        {/* Open Graph Meta Tags (Facebook, Instagram, LinkedIn, WhatsApp) */}
+        <meta property="og:title" content="Bytezle | Best Gadget Store in Bangladesh" />
+        <meta property="og:description" content="Shop the latest gadgets and electronics in Bangladesh at the best prices!" />
+        <meta property="og:image" content="https://bytezle.com/logo.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:url" content="https://bytezle.com" />
+        <meta property="og:type" content="website" />
 
-  {/* Twitter Meta Tags */}
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Bytezle | Best Gadget Store in Bangladesh" />
-  <meta name="twitter:description" content="Shop the latest gadgets and electronics in Bangladesh at the best prices!" />
-  <meta name="twitter:image" content="https://bytezle.com/logo.png" />
-  <meta name="twitter:url" content="https://bytezle.com" />
+        {/* Twitter Meta Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Bytezle | Best Gadget Store in Bangladesh" />
+        <meta name="twitter:description" content="Shop the latest gadgets and electronics in Bangladesh at the best prices!" />
+        <meta name="twitter:image" content="https://bytezle.com/logo.png" />
+        <meta name="twitter:url" content="https://bytezle.com" />
 
-  {/* WhatsApp, Telegram, Messenger (Uses Open Graph) */}
-</head>
+        {/* Facebook Pixel Script */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              !function(f,b,e,v,n,t,s) {
+                if(f.fbq)return; n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n; n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window, document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+                fbq('init', 'your-pixel-id'); // Replace 'your-pixel-id' with your actual Pixel ID
+                fbq('track', 'PageView');
+            `,
+          }}
+        />
+
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
+            src="https://www.facebook.com/tr?id=your-pixel-id&ev=PageView&noscript=1"
+          />
+        </noscript>
+      </head>
 
       <body className={openSans.className}>
         <CartProvider>

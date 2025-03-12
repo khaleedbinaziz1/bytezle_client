@@ -48,11 +48,7 @@ export const CartProvider = ({ children }) => {
   const addToCart = async (product, quantity) => {
     const existingItemIndex = cartItems.findIndex(item => item.cartId === product._id);
     const user = auth.currentUser;
-    if (!user) {
-      document.getElementById('login_modal').showModal();
-      return;
-    }
-
+ 
     let updatedCartItems;
 
     if (existingItemIndex !== -1) {

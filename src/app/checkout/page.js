@@ -37,7 +37,7 @@ const Checkout = ({ user }) => {
 
 
 
-  const [paymentOption, setPaymentOption] = useState('full'); // To track payment option
+  const [paymentOption, setPaymentOption] = useState('partial'); // To track payment option
   const [totalPartialPrice, setTotalPartialPrice] = useState(0);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false); // State to control modal visibility
 
@@ -617,18 +617,7 @@ const Checkout = ({ user }) => {
                   required
                 />
               </div>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Enter Email:</label>
-                <input
-                  type="email"
-                  id="email"
-                  className="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-                  placeholder={userEmail}
-                  value={shippingInfo.email}
-                  onChange={(e) => setShippingInfo({ ...shippingInfo, email: e.target.value })}
-                  required
-                />
-              </div>
+     
               <div>
                 <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location:</label>
                 <textarea
@@ -743,34 +732,34 @@ const Checkout = ({ user }) => {
               </span>
             </div>
 
-            {/* Payment Option Selection */}
-            <div className="mb-4 mt-10">
-              <label className="text-lg font-semibold">Payment Option:</label>
-              <div>
-                <label className="mr-4">
-                  <input
-                    type="radio"
-                    name="paymentOption"
-                    value="full"
-                    checked={paymentOption === 'full'}
-                    onChange={() => setPaymentOption('full')}
-                    required
-                  />
-                  Full Payment
-                </label>
-                <label>
-                  <input
-                    type="radio"
+           {/* Payment Option Selection */}
+<div className="mb-4 mt-10">
+  <label className="text-lg font-semibold">Payment Option:</label>
+  <div>
+    <label className="mr-4">
+      <input
+        type="radio"
+        name="paymentOption"
+        value="full"
+        checked={paymentOption === 'full'}
+        onChange={() => setPaymentOption('full')}
+        required
+      />
+      Full Payment
+    </label>
+    <label>
+      <input
+        type="radio"
+        name="paymentOption"
+        value="partial"
+        checked={paymentOption === 'partial'}
+        onChange={() => setPaymentOption('partial')}
+      />
+      Payment to confirm order
+    </label>
+  </div>
+</div>
 
-                    name="paymentOption"
-                    value="partial"
-                    checked={paymentOption === 'partial'}
-                    onChange={() => setPaymentOption('partial')}
-                  />
-                  Payment to confirm order
-                </label>
-              </div>
-            </div>
 
             {/* Show partial payment amount and due amount if partial payment is selected */}
             {paymentOption === 'partial' && (
@@ -816,4 +805,4 @@ const Checkout = ({ user }) => {
   );
 };
 
-export default withAuth(Checkout);
+export default Checkout;

@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart, useCartState } from './CartProvider';
 import { FaTimes, FaPlus, FaMinus } from 'react-icons/fa';
-import { auth } from '../../login/firebase/firebase';
-import { clearCart, saveCart } from './cartService';
+import { clearCart } from './cartService';
 import Image from 'next/image';
 import basket from '../../../../images/shopping-cart.png';
 
@@ -13,24 +12,15 @@ const Cart = () => {
   const router = useRouter();
 
   const handleCheckout = () => {
-    const user = auth.currentUser;
     const currentPath = window.location.pathname;
-    if (user) {
-      const cartDetails = { items: cartItems, total: totalPrice.toFixed(0) };
-      localStorage.setItem('cartDetails', JSON.stringify(cartDetails));
-      saveCart(cartItems);
-      router.push('/checkout');
-      toggleCart();
-    } else {
-      localStorage.setItem('redirectPath', currentPath);
-      clearCart();
-      router.push('/pages/Authentication');
-    }
+    localStorage.setItem('cartDetails', JSON.stringify({ items: cartItems, total: totalPrice.toFixed(0) }));
+    clearCart();
+    router.push('/checkout');
+    toggleCart();
   };
 
   const handleQuantityChange = (cartId, type) => {
     updateItemQuantity(cartId, type);
-
   };
 
   return (

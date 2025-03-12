@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useCart } from "../Shared/Cart/CartProvider";
 import RelatedProducts from "./RelatedProducts";
 import { FaCheck } from "react-icons/fa"; // Import the check icon
+import { useRouter } from 'next/navigation';
 
 const ProductDescription = ({ id }) => {
   const [product, setProduct] = useState(null);
@@ -16,6 +17,7 @@ const ProductDescription = ({ id }) => {
   const [selectedColor, setSelectedColor] = useState(null);
   const [showToast, setShowToast] = useState(false); // State for toast visibility
   const imageRef = useRef(null);
+  const router = useRouter()
 
   const { addToCart } = useCart();
 
@@ -77,6 +79,22 @@ const ProductDescription = ({ id }) => {
       // setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
     }
   };
+  const handleBuyNow = () => {
+    if (product && addToCart) {
+      const productToAdd = {
+        ...product,
+        color: selectedColor,
+        type: isWholesale ? "wholesale" : "retail",
+        price: isWholesale ? product.wholesalePrice : product.price,
+      };
+      addToCart(productToAdd, wholesaleQuantity); // Add the product to the cart
+      // Store cart items in localStorage or session
+      localStorage.setItem('cartDetails', JSON.stringify({ items: [{...productToAdd, quantity: wholesaleQuantity}], total: (productToAdd.price * wholesaleQuantity).toFixed(0) }));
+      // Navigate to checkout page
+      router.push('/checkout');
+    }
+  };
+  
 
   const handleColorChange = (color) => {
     setSelectedColor(color);
@@ -145,32 +163,46 @@ const ProductDescription = ({ id }) => {
         )}
 
         {/* Price, Quantity, and Add to Cart */}
-        <div className="flex flex-col items-center gap-4 mt-6">
-          <p className="text-xl font-medium text-gray-800">
-            Price: <span className="text-lg font-semibold text-gray-800">tk.{product.price}</span>
-          </p>
-          <button
-            className="px-6 py-3 bg-gray-500 text-white font-semibold rounded-lg shadow-sm hover:bg-gray-600 transition duration-300"
-            onClick={handleAddToCart}
-          >
-            <FaShoppingCart className="inline mr-2" /> Add To Cart
-          </button>
-          <div className="flex items-center space-x-3 mt-4">
-            <button
-              className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-300 transition"
-              onClick={() => handleQuantityChange("decrease")}
-            >
-              <FaMinus />
-            </button>
-            <span className="text-sm font-medium">{wholesaleQuantity}</span>
-            <button
-              className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-300 transition"
-              onClick={() => handleQuantityChange("increase")}
-            >
-              <FaPlus />
-            </button>
-          </div>
-        </div>
+        <div className="flex flex-col items-center gap-6 mt-6 p-4 bg-white shadow-lg rounded-lg">
+  <p className="text-xl font-semibold text-gray-900">
+    Price: <span className="text-2xl font-bold text-green-600">tk.{product.price}</span>
+  </p>
+  
+  <div className="flex gap-4 mt-4">
+    <button
+      className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-300 ease-in-out"
+      onClick={handleAddToCart}
+    >
+      <FaShoppingCart className="inline mr-2" /> Add To Cart
+    </button>
+    
+    <button
+      className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out"
+      onClick={handleBuyNow}
+    >
+      <FaShoppingCart className="inline mr-2" /> Buy Now
+    </button>
+  </div>
+
+  <div className="flex items-center space-x-4 mt-6">
+    <button
+      className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-300 transition"
+      onClick={() => handleQuantityChange("decrease")}
+    >
+      <FaMinus className="text-lg" />
+    </button>
+    
+    <span className="text-lg font-medium text-gray-800">{wholesaleQuantity}</span>
+    
+    <button
+      className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-300 transition"
+      onClick={() => handleQuantityChange("increase")}
+    >
+      <FaPlus className="text-lg" />
+    </button>
+  </div>
+</div>
+
 
         {/* Toast Notification */}
         {showToast && (

@@ -134,7 +134,7 @@ const Navbar = () => {
   };
 
   return (
-<div className=''>
+<div className=' '>
     <Cart isOpen={isCartOpen} toggleCart={toggleCart} />
     <>
       {/* Overlay */}
@@ -201,40 +201,9 @@ const Navbar = () => {
           )}
         </div>
   
-        {isAuthenticated ? (
-          <div className="flex-none gap-2 z-[10000]">
-            <div className="dropdown dropdown-end">
-              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-                <div className="w-8 rounded-full">
-                  <Image
-                    src={userImage}
-                    alt='user'
-                    width='20'
-                    height='20'
-                    className='rounded-full ring ring-primary'
-                  />
-                </div>
-              </div>
-              <ul
-                tabIndex={0}
-                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[10000] mt-2 w-48 p-2 shadow"
-              >
-                <li>
-                  <a href='/pages/Profile' className="justify-between">
-                    Profile
-                    <span className="badge">New</span>
-                  </a>
-                </li>
-                <li><Link href='/pages/tracking'>Track Orders</Link></li>
-                <li onClick={handleLogOut}><a>Log out</a></li>
-              </ul>
-            </div>
-          </div>
-        ) : (
-          <button className="btn btn-primary btn-sm hover:btn-outline" onClick={() => document.getElementById('login_modal').showModal()}>
-            Login
-          </button>
-        )}
+
+         
+   
       </div>
   
       {isMobileView && (
@@ -242,7 +211,7 @@ const Navbar = () => {
           <Searchbar />
         </div>
       )}
-      <Login />
+    
     </div>
   </div>
   );
